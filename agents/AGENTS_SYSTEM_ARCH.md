@@ -2,15 +2,15 @@
 
 ## Quick Map
 - **Data Acquisition**: `scripts/fetch_channel.py` streams raw posts (id, timestamp, text) for a configured channel using Telegram API credentials loaded from `.env`.
-- **Raw Storage**: Messages are persisted to a local SQLite database, keyed by channel and message id to keep ingestion idempotent.
+- **Raw Storage**: Messages are persisted to a local SQLite database via the Peewee ORM models in `osintagency.schema`, keyed by channel and message id to keep ingestion idempotent.
 - **Enrichment**: A summarization routine scans stored rows and emits per-channel and keyword aggregates as JSON snapshots.
 - **Display**: A static dashboard loads the latest JSON snapshot to present counts and highlight notable references.
 
 ## Storage and Display Flow
 ```
-      +--------------+      +------------------+      +------------------+
-      | Telegram API | ---> | Fetcher Scripts  | ---> | SQLite Storage   |
-      +--------------+      +------------------+      +------------------+
+      +--------------+      +------------------+      +---------------------------+
+      | Telegram API | ---> | Fetcher Scripts  | ---> | Peewee ORM (SQLite store) |
+      +--------------+      +------------------+      +---------------------------+
                                       |                        |
                                       v                        v
                          +------------------+      +---------------------+
@@ -22,7 +22,7 @@
                                            | Static Metrics Dashboard UI |
                                            +-----------------------------+
 ```
-Posts flow from the Telegram API into the fetcher scripts, which upsert them into the local SQLite store keyed by channel and message identifiers.
+Posts flow from the Telegram API into the fetcher scripts, which upsert them into the Peewee-managed SQLite store keyed by channel and message identifiers.
 The summarization routine runs after ingestion to scan stored posts, calculate aggregates, and emit a JSON snapshot ready for display.
 The dashboard loads the latest JSON snapshot on page render, so UI refreshes stay decoupled from data collection schedules.
 

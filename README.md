@@ -15,6 +15,7 @@ The repository is under active build-out. Follow the plans in `agents/AGENTS_PLA
 
 ## Data Storage
 
-- Raw Telegram posts are written to a SQLite database at `data/messages.sqlite3` by default.
+- Raw Telegram posts are written via the Peewee ORM to a SQLite database at `data/messages.sqlite3` by default.
 - Override the location by setting the `OSINTAGENCY_DB_PATH` environment variable before invoking any fetch commands.
 - Re-running the fetcher upserts messages keyed by channel and Telegram id, so only new posts increase the stored row count.
+- Helper utilities in `osintagency.storage` expose the ORM models so tests and analytics code can query the stored messages without reaching into SQLite directly.

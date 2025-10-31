@@ -1,10 +1,10 @@
-import asyncio
 import datetime as dt
 from types import SimpleNamespace
 
 import pytest
 
 from osintagency.config import TelegramConfig
+from osintagency import storage
 from scripts import fetch_channel
 
 
@@ -176,14 +176,8 @@ async def test_async_main_upserts_messages(tmp_path, monkeypatch):
     assert rc1 == 0
     assert rc2 == 0
 
-    import sqlite3
-
-    with sqlite3.connect(db_path) as conn:
-        rows = conn.execute(
-            "SELECT channel_id, message_id, text FROM messages ORDER BY message_id"
-        ).fetchall()
-
-    assert rows == [
+    rows = storage.fetch_messages("@channel", db_path=db_path)
+    assert [(row["channel_id"], row["message_id"], row["text"]) for row in rows] == [
         ("@channel", 1, "one"),
         ("@channel", 2, "two"),
         ("@channel", 3, "three"),

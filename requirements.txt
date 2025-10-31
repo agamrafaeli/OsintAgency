@@ -1,4 +1,4 @@
 python-dotenv>=1.0,<2.0
 telethon>=1.36,<2.0
 pytest>=7.0,<8.0
-
+peewee>=3.17,<4.0

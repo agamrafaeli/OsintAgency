@@ -20,23 +20,21 @@ When planning / executing a step from this plan:
 
 ## Current Steps to run
 
-- Use Peewee for minimal ORM
-Use Peewee as an ORM: single model for messages. should be used in code and tests. Also update documentation
-End-to-end test: No direct usage of SQLlite other than in single file that abstracts it away ysing pewwee
+1. Implement Peewee ORM
+Introduce Peewee as the persistence layer for message storage across ingestion and processing components. Consolidate direct SQLite usage behind a single repository module so both runtime code and tests rely on the ORM abstraction.
+End-to-end test: Running the end-to-end fetch flow persists messages via the Peewee repository with no raw SQLite access outside the storage adapter.
 
-- Basic flows for data hygenie
-Use `OSINTAGENCY_DB_PATH` to create a mock DB for all runs. Mock away the actual API calls to telegram, found a very simple (~50 LOC) way to "mock" messages so that end-to-end flows can be tested.
-End-to-end test: run full flow of system for one channel and five messages, see full DB is created, delete the db, check that no db exists
+2. Stabilize Data Hygiene
+Add configuration plumbing so the collector honors the `OSINTAGENCY_DB_PATH` when building isolated databases per run. Replace live Telegram calls with a deterministic ~50 LOC stub that exercises ingestion and cleanup flows.
+End-to-end test: Running the full flow for one channel and five messages creates the expected database in the configured path, deleting it leaves no residual database.
 
-- Compute Aggregate Summaries
-Add a tiny analysis routine that reads the stored posts and calculates counts by channel and keyword references. Emit the results as a JSON blob the UI can consume.
-End-to-end test: Running `python scripts/summarize_posts.py` outputs aggregate counts for sample data.
+3. Compute Aggregate Summaries
+Implement a lightweight analysis routine that reads stored posts and tallies counts by channel and keyword. Expose the summary as a JSON artifact consumable by downstream interfaces.
+End-to-end test: Running `python scripts/summarize_posts.py` produces aggregate counts for sample data.
 
-
-
-- Render Metric Dashboard
-Build a bare-bones view that surfaces the aggregate metrics, focusing on total posts and top Quran references. Keep it static and depend only on the generated JSON summary.
-End-to-end test: Serving the dashboard locally shows counts that match the JSON summary.
+4. Render Metric Dashboard
+Build a static dashboard that surfaces total posts and top Quran references from the generated JSON summary. Ensure the view remains lightweight and only depends on the summary artifact for data.
+End-to-end test: Serving the dashboard locally displays counts matching the JSON summary.
 
 
 ## Documentation Update Process
