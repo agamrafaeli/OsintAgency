@@ -8,6 +8,7 @@ from .commands import check_credentials as check_credentials_module
 from .commands import cleanup_database as cleanup_database_module
 from .commands import fetch_channel as fetch_channel_module
 from .decorators import osintagency_cli_command
+from .subscribe_commands import subscribe_group
 
 
 @click.command(name="fetch-channel")
@@ -125,6 +126,7 @@ def cli() -> None:
 cli.add_command(fetch_channel_command)
 cli.add_command(check_credentials_command)
 cli.add_command(cleanup_database_command)
+cli.add_command(subscribe_group)
 
 
 if __name__ == "__main__":  # pragma: no cover - module entry point

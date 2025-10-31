@@ -2,11 +2,11 @@
 
 ## Quick Map
 - **CLI**: `osintagency/cli/cli.py` defines the Click entry points and forwards parsed options into `osintagency/cli/commands/`, keeping parsing concerns isolated from business code.
-- **Commands**: `osintagency/cli/commands/check_credentials.py` and `osintagency/cli/commands/fetch_channel.py` expose `*_command` functions that simply relay CLI arguments to the underlying action layer.
+- **Commands**: `osintagency/cli/commands/check_credentials.py` and `osintagency/cli/commands/fetch_channel.py` expose `*_command` functions that simply relay CLI arguments to the underlying action layer or direct persistence functions.
 - **Logging**: `osintagency/logging_config.py` centralizes logger configuration, exposing module loggers and a console logger that sends info-level output to stdout while routing warnings and errors to stderr so CLI integrations capture deterministic JSON lines.
 - **Telegram Actions**: `osintagency/actions/check_credentials_action.py` and `osintagency/actions/fetch_channel_action.py` encapsulate credential validation and deterministic collection, relying on configuration helpers in `osintagency/config.py` and persistence routines in `osintagency/storage.py`.
 - **Raw Storage**: Messages are persisted to a local SQLite database via the Peewee ORM models in `osintagency.schema`, keyed by channel and message id to keep ingestion idempotent.
-- **Subscription Management**: Channel subscriptions are tracked in the same SQLite database via `osintagency/subscription_config.py`, which provides functions to add, retrieve, update, and remove channel subscriptions with metadata support.
+- **Subscription Management**: Channel subscriptions are tracked in the same SQLite database via `osintagency/subscription.py`, which provides functions to add, retrieve, update, and remove channel subscriptions with metadata support. The `subscribe` CLI command group in `osintagency/cli/subscribe_commands.py` provides a user-facing interface with subcommands for add, list, update, and remove operations.
 - **Enrichment**: A summarization routine scans stored rows and emits per-channel and keyword aggregates as JSON snapshots.
 - **Display**: A static dashboard loads the latest JSON snapshot to present counts and highlight notable references.
 
