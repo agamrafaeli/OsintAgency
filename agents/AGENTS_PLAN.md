@@ -21,11 +21,12 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-- Add ability so that commands can be run using osintagency instead of `python -m ....`
-
-- Add ability to fetch large amounts (100k and up) of messages. First brainstorm approaches on how to do this, only then do it.
 
 - Add "setup" action: cleanup DB, fetch channel ID from last month
+
+
+- Generate JSON summary from existing DB to serve for the metric dashboard.
+
 
 - Compute Aggregate Summaries
   Implement a lightweight analysis routine that reads stored posts and tallies counts by channel and keyword. Expose the summary as a JSON artifact consumable by downstream interfaces.
@@ -34,6 +35,8 @@ When planning / executing a step from this plan:
 - Render Metric Dashboard
   Build a static dashboard that surfaces total posts and top Quran references from the generated JSON summary. Ensure the view remains lightweight and only depends on the summary artifact for data.
   End-to-end test: Serving the dashboard locally displays counts matching the JSON summary.
+
+- Add ability to fetch large amounts (100k and up) of messages. First brainstorm approaches on how to do this, only then do it.
 
 
 ## Documentation Update Process
