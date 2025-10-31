@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
+
 from click.testing import CliRunner
 import pytest
 
@@ -164,3 +166,63 @@ def test_fetch_subscriptions_handles_fetch_errors_gracefully(memory_db, monkeypa
 
     # Should complete even if there are errors
     assert result.exit_code == 0 or "error" in result.output.lower()
+
+
+def test_setup_fetch_all_fetches_active_subscriptions(memory_db, monkeypatch):
+    """Test that setup fetch-all command processes all active subscriptions."""
+    monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(memory_db))
+    runner = CliRunner()
+    telegram_client = DeterministicTelegramClient()
+
+    add_subscription(channel_id="@setup_channel1", name="Channel 1")
+    add_subscription(channel_id="@setup_channel2", name="Channel 2")
+
+    result = runner.invoke(
+        cli,
+        ["setup", "fetch-all", "--limit", "3"],
+        obj={"telegram_client": telegram_client},
+    )
+
+    assert result.exit_code == 0
+    messages = fetch_messages()
+    assert messages, "Expected messages to be stored for setup fetch-all command."
+    channel_ids = {msg["channel_id"] for msg in messages}
+    assert "@setup_channel1" in channel_ids
+    assert "@setup_channel2" in channel_ids
+
+
+def test_setup_fetch_all_respects_days_parameter(memory_db, monkeypatch):
+    """Test that setup fetch-all converts --days into an offset when invoking the action."""
+    monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(memory_db))
+    runner = CliRunner()
+    telegram_client = DeterministicTelegramClient()
+
+    captured: dict[str, object] = {}
+
+    def fake_action(*, limit, db_path, log_level, telegram_client, offset_date):
+        captured["limit"] = limit
+        captured["db_path"] = db_path
+        captured["log_level"] = log_level
+        captured["telegram_client"] = telegram_client
+        captured["offset_date"] = offset_date
+        return 0
+
+    monkeypatch.setattr(
+        "osintagency.cli.setup_commands.fetch_subscriptions_action",
+        fake_action,
+        raising=False,
+    )
+
+    result = runner.invoke(
+        cli,
+        ["setup", "fetch-all", "--limit", "4", "--days", "30"],
+        obj={"telegram_client": telegram_client},
+    )
+
+    assert result.exit_code == 0
+    assert captured["offset_date"] is not None
+    expected = datetime.now(timezone.utc) - timedelta(days=30)
+    delta = abs((captured["offset_date"] - expected).total_seconds())
+    assert delta < 5, "Offset date should be approximately 30 days ago."
+    assert captured["limit"] == 4
+    assert captured["telegram_client"] is telegram_client

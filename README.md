@@ -42,6 +42,9 @@ The repository is under active build-out. Follow the plans in `agents/AGENTS_PLA
    # Backfill a specific channel for the prior week without affecting other data
    osintagency setup fetch-channel @example_channel --days 7
 
+   # Bulk collect all active subscriptions with a date window cap
+   osintagency setup fetch-all --limit 50 --days 30
+
    # Reset the message store when you need a clean slate
    osintagency setup cleanup
    ```

@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
+
 import click
 
 from .commands import cleanup_database as cleanup_database_module
 from .commands import fetch_channel as fetch_channel_module
 from .decorators import osintagency_cli_command
+from ..actions.fetch_subscriptions_action import fetch_subscriptions_action
+from ..collector import TelethonTelegramClient
+from ..config import load_telegram_config
 
 
 @click.group(name="setup")
@@ -94,6 +99,61 @@ def fetch_channel_command(
         use_stub=use_stub,
         telegram_client=telegram_client,
         days=days,
+    )
+    ctx.exit(exit_code)
+
+
+@setup_group.command(name="fetch-all")
+@click.option(
+    "--limit",
+    type=int,
+    default=5,
+    show_default=True,
+    help="Number of recent posts to retrieve from each channel.",
+)
+@click.option(
+    "--db-path",
+    help="Explicit database path override. Falls back to OSINTAGENCY_DB_PATH when omitted.",
+)
+@click.option(
+    "--log-level",
+    default="WARNING",
+    show_default=True,
+    help="Python logging level.",
+)
+@click.option(
+    "--days",
+    type=int,
+    help="Fetch only messages from the last N days.",
+)
+@click.pass_context
+@osintagency_cli_command(log_level_param="log_level")
+def fetch_all_command(
+    ctx: click.Context,
+    limit: int,
+    db_path: str | None,
+    log_level: str,
+    days: int | None,
+) -> None:
+    """Fetch Telegram messages for all active subscriptions."""
+    telegram_client = None
+    if ctx.obj:
+        telegram_client = ctx.obj.get("telegram_client")
+
+    if telegram_client is None:
+        config = load_telegram_config(require_auth=True)
+        telegram_client = TelethonTelegramClient(config)
+
+    offset_date = None
+    if days is not None:
+        offset_date = datetime.now(timezone.utc) - timedelta(days=days)
+
+    exit_code = fetch_subscriptions_action(
+        limit=limit,
+        db_path=db_path,
+        log_level=log_level,
+        telegram_client=telegram_client,
+        offset_date=offset_date,
     )
     ctx.exit(exit_code)
 
