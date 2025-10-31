@@ -32,9 +32,18 @@ This guide clarifies when to exercise the test suite and how to keep the shared 
 
 - Keep all automated tests under `tests/` so they are collected automatically by `pytest`.
 - Name new test files `test_<feature>.py` and group related helpers or fixtures in modules with descriptive names rather than step numbers.
-- When adding fixtures or shared utilities, place them in `tests/conftest.py` (create it if needed) to keep them discoverable across all tests.
+- When adding fixtures or shared utilities, place them in `tests/conftest.py` or create dedicated fixture modules in `tests/` (e.g., `tests/fixtures.py` for storage fixtures).
+- Import fixture modules via `pytest_plugins` in `conftest.py` to make them discoverable across all tests (see example below).
 - Avoid committing cached bytecode (`__pycache__`); if it appears, remove it before committing.
 - Store sample data or recorded responses under `tests/data/` (create the directory as needed) and document the data source inside that folder to keep provenance clear.
+
+### Available Test Fixtures
+
+The project provides reusable fixtures for database testing in `tests/fixtures.py`:
+
+- **`memory_db`**: Provides a temporary SQLite database file that is automatically cleaned up after each test. Use this for tests that need an isolated database.
+- **`populated_db`**: Extends `memory_db` by pre-populating it with sample message data. Use this when tests need existing data without setup boilerplate.
+- **`db_factory`**: Factory fixture for creating multiple isolated databases within a single test. Useful for testing multi-database scenarios.
 
 ## Continuous Improvement
 

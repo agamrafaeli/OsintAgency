@@ -11,3 +11,6 @@ if str(PROJECT_ROOT) not in sys.path:
 
 # Skip reading the repository `.env` file during test runs to keep fixtures isolated.
 os.environ.setdefault("OSINTAGENCY_SKIP_DOTENV", "1")
+
+# Import storage fixtures to make them available to all tests
+pytest_plugins = ["tests.fixtures"]

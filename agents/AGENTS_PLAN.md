@@ -52,6 +52,8 @@ When a step is completed:
 - **Update README.md**:   
    - Changes to main features
    - Add any specific workflows that are main enough
+- **Update AGENTS_XXX.md**:
+   - Update `AGENTS_SYSTEM_ARCH.md` if the step is big enough. If you decide not to update it, verify this with a human and explain your decision.
 - **Confirm with a human** before removing a completed step from this file (agents/AGENTS_PLAN.md); removal is a human-only decision. Once confirmed, **remove the completed step** and, if it was the last step to be removed, write a <PLACEHOLDER> for future writings to this file of new plans.
 - **Reorder remaining steps** as needed to keep the plan coherent.
 
