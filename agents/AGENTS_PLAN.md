@@ -21,6 +21,8 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
+- Add ability so that commands can be run using osintagency instead of `python -m ....`
+
 - Add ability to fetch large amounts (100k and up) of messages. First brainstorm approaches on how to do this, only then do it.
 
 - Add "setup" action: cleanup DB, fetch channel ID from last month

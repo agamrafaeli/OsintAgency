@@ -2,4 +2,9 @@ data/
 
 *.pyc
 *.env
-
+*egg-info/
+__pycache__/
+.vscode/
+.DS_Store
+.idea/
+.envrc

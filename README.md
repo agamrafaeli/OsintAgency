@@ -9,15 +9,15 @@ The repository is under active build-out. Follow the plans in `agents/AGENTS_PLA
 ## Getting Started
 
 1. Copy `.env.example` to `.env` and fill in the Telegram API credentials. Provide either a user session string or a bot token along with the target channel identifier.
-2. Create a virtual environment and install dependencies: `python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`.
-3. Validate the environment with `python -m osintagency.cli.cli check-credentials --generate-session`; this confirms the configured channel, ensures the database path is writable, and can optionally sign in once to print a `TELEGRAM_SESSION_STRING`.
+2. Create a virtual environment and install dependencies: `python -m venv .venv && source .venv/bin/activate && pip install -e .`.
+3. Validate the environment with `osintagency check-credentials --generate-session`; this confirms the configured channel, ensures the database path is writable, and can optionally sign in once to print a `TELEGRAM_SESSION_STRING`.
 4. Manage channel subscriptions:
-   - Add: `python -m osintagency.cli.cli subscribe add --channel-id @example_channel --name "Example Channel"`
-   - List: `python -m osintagency.cli.cli subscribe list` (use `--format json` for JSON output)
-   - Update: `python -m osintagency.cli.cli subscribe update --channel-id @example_channel --name "New Name"`
-   - Remove: `python -m osintagency.cli.cli subscribe remove --channel-id @example_channel`
-   - Fetch all: `python -m osintagency.cli.cli subscribe fetch --limit 5` to fetch messages from all active subscribed channels
-5. Prototype data collection from a single channel via `python -m osintagency.cli.cli fetch-channel --limit 5` to pull the latest posts into the local store. Add `--use-stub` to emit a deterministic batch when validating persistence, or `--cleanup` to delete the generated SQLite database when you are done.
+   - Add: `osintagency subscribe add --channel-id @example_channel --name "Example Channel"`
+   - List: `osintagency subscribe list` (use `--format json` for JSON output)
+   - Update: `osintagency subscribe update --channel-id @example_channel --name "New Name"`
+   - Remove: `osintagency subscribe remove --channel-id @example_channel`
+   - Fetch all: `osintagency subscribe fetch --limit 5` to fetch messages from all active subscribed channels
+5. Prototype data collection from a single channel via `osintagency fetch-channel --limit 5` to pull the latest posts into the local store. Add `--use-stub` to emit a deterministic batch when validating persistence, or `--cleanup` to delete the generated SQLite database when you are done.
 
 ## Data Storage
 
