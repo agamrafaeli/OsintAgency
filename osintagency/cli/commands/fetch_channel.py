@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
+
 from ...actions.fetch_channel_action import fetch_channel_action
 from ...collector import (
     DeterministicTelegramClient,
@@ -19,6 +21,7 @@ def fetch_channel_command(
     log_level: str,
     use_stub: bool,
     telegram_client: TelegramMessageClient | None = None,
+    days: int | None = None,
 ) -> int:
     """Invoke the fetch-channel action with CLI-provided arguments."""
 
@@ -34,12 +37,18 @@ def fetch_channel_command(
     if resolved_client is None:
         raise RuntimeError("Failed to resolve a telegram client for collection.")
 
+    # Convert days to offset_date
+    offset_date = None
+    if days is not None:
+        offset_date = datetime.now(timezone.utc) - timedelta(days=days)
+
     return fetch_channel_action(
         limit=limit,
         channel_id=channel_id,
         db_path=db_path,
         log_level=log_level,
         telegram_client=resolved_client,
+        offset_date=offset_date,
     )
 
 

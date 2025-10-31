@@ -17,7 +17,8 @@ The repository is under active build-out. Follow the plans in `agents/AGENTS_PLA
    - Update: `osintagency subscribe update --channel-id @example_channel --name "New Name"`
    - Remove: `osintagency subscribe remove --channel-id @example_channel`
    - Fetch all: `osintagency subscribe fetch --limit 5` to fetch messages from all active subscribed channels
-5. Prototype data collection from a single channel via `osintagency fetch-channel --limit 5` to pull the latest posts into the local store. Add `--use-stub` to emit a deterministic batch when validating persistence, or `--cleanup` to delete the generated SQLite database when you are done.
+   - Fetch with date filtering: `osintagency subscribe fetch --limit 100 --days 7` to fetch only messages from the last 7 days
+5. Prototype data collection from a single channel via `osintagency fetch-channel --limit 5` to pull the latest posts into the local store. Add `--use-stub` to emit a deterministic batch when validating persistence, or `--cleanup` to delete the generated SQLite database when you are done
 
 ## Data Storage
 

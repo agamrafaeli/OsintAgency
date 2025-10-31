@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 import os
 from dataclasses import dataclass
 
@@ -27,6 +28,7 @@ def _fetch_from_channel(
     limit: int,
     db_path: str | os.PathLike[str] | None,
     telegram_client: TelegramMessageClient,
+    offset_date: datetime | None = None,
 ) -> FetchResult:
     """Fetch messages from a single subscribed channel."""
     console = get_console_logger()
@@ -40,6 +42,7 @@ def _fetch_from_channel(
             channel_id=channel_id,
             db_path=db_path,
             telegram_client=telegram_client,
+            offset_date=offset_date,
         )
         console.info("Stored %d message(s) from %s", outcome.stored_messages, channel_id)
         return FetchResult(channel_id, success=True, message_count=outcome.stored_messages)
@@ -81,6 +84,7 @@ def fetch_subscriptions_action(
     db_path: str | os.PathLike[str] | None,
     log_level: str,
     telegram_client: TelegramMessageClient | None = None,
+    offset_date: datetime | None = None,
 ) -> int:
     """Fetch messages from all active subscribed channels."""
     configure_logging(log_level)
@@ -100,7 +104,7 @@ def fetch_subscriptions_action(
         console.info("Found %d active subscription(s). Fetching messages...", len(subscriptions))
 
         results = [
-            _fetch_from_channel(sub, limit, db_path, telegram_client)
+            _fetch_from_channel(sub, limit, db_path, telegram_client, offset_date)
             for sub in subscriptions
         ]
 

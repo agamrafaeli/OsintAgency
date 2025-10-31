@@ -38,6 +38,11 @@ from .subscribe_commands import subscribe_group
     is_flag=True,
     help="Use the deterministic stub collector instead of live Telegram data.",
 )
+@click.option(
+    "--days",
+    type=int,
+    help="Fetch only messages from the last N days.",
+)
 @click.pass_context
 @osintagency_cli_command(log_level_param="log_level")
 def fetch_channel_command(
@@ -47,6 +52,7 @@ def fetch_channel_command(
     db_path: str | None,
     log_level: str,
     use_stub: bool,
+    days: int | None,
 ) -> None:
     """Persist Telegram messages into the configured store."""
     telegram_client = None
@@ -59,6 +65,7 @@ def fetch_channel_command(
         log_level=log_level,
         use_stub=use_stub,
         telegram_client=telegram_client,
+        days=days,
     )
     ctx.exit(exit_code)
 

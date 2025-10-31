@@ -22,10 +22,6 @@ When planning / executing a step from this plan:
 ## Planned Steps
 
 
-- Add Date Filtering to Message Fetching
-  Extend the collector's collect_messages() function to accept an optional offset_date parameter that limits fetching to messages newer than the specified date. This enables time-bounded data collection for testing and development workflows. Allow this to be used with a parameter on current fetch flows.
-  End-to-end test: Calling current fetch flows with offset_date set to 7 days ago only fetches messages from the last week.
-
 - Setup Cleanup Subcommand
   Create a setup command group with a cleanup subcommand that clears the database. This establishes the CLI structure for future setup operations and provides a convenient way to reset the database state.
   End-to-end test: Running `osintagency setup cleanup` successfully deletes the database file.

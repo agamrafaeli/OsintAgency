@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 import json
 import os
 
@@ -19,6 +20,7 @@ def fetch_channel_action(
     db_path: str | os.PathLike[str] | None,
     log_level: str,
     telegram_client: TelegramMessageClient | None = None,
+    offset_date: datetime | None = None,
 ) -> int:
     """Persist Telegram messages from Telegram into storage."""
     configure_logging(log_level)
@@ -34,6 +36,7 @@ def fetch_channel_action(
             channel_id=channel_id,
             db_path=db_path,
             telegram_client=telegram_client,
+            offset_date=offset_date,
         )
     except ConfigurationError as err:
         console.error("Configuration error: %s", err)

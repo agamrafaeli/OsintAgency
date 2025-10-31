@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
 import json
 import sys
 
@@ -245,6 +246,11 @@ def remove_command(
     show_default=True,
     help="Python logging level.",
 )
+@click.option(
+    "--days",
+    type=int,
+    help="Fetch only messages from the last N days.",
+)
 @click.pass_context
 @osintagency_cli_command(log_level_param="log_level")
 def fetch_command(
@@ -252,6 +258,7 @@ def fetch_command(
     limit: int,
     db_path: str | None,
     log_level: str,
+    days: int | None,
 ) -> None:
     """Fetch messages from all active subscribed channels."""
     telegram_client = None
@@ -262,11 +269,17 @@ def fetch_command(
         config = load_telegram_config(require_auth=True)
         telegram_client = TelethonTelegramClient(config)
 
+    # Convert days to offset_date
+    offset_date = None
+    if days is not None:
+        offset_date = datetime.now(timezone.utc) - timedelta(days=days)
+
     exit_code = fetch_subscriptions_action(
         limit=limit,
         db_path=db_path,
         log_level=log_level,
         telegram_client=telegram_client,
+        offset_date=offset_date,
     )
     ctx.exit(exit_code)
 

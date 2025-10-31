@@ -37,12 +37,14 @@ def test_fetch_channel_command_uses_defaults(monkeypatch):
     assert captured["db_path"] is None
     assert captured["log_level"] == "WARNING"
     assert isinstance(captured["telegram_client"], TelethonTelegramClient)
+    assert captured["offset_date"] is None
     assert set(captured.keys()) == {
         "limit",
         "channel_id",
         "db_path",
         "log_level",
         "telegram_client",
+        "offset_date",
     }
 
 
@@ -86,12 +88,14 @@ def test_fetch_channel_command_handles_overrides(monkeypatch):
     assert captured["db_path"] == "/tmp/messages.sqlite3"
     assert captured["log_level"] == "info"
     assert isinstance(captured["telegram_client"], DeterministicTelegramClient)
+    assert captured["offset_date"] is None
     assert set(captured.keys()) == {
         "limit",
         "channel_id",
         "db_path",
         "log_level",
         "telegram_client",
+        "offset_date",
     }
     assert captured["telegram_client"] is telegram_client
 

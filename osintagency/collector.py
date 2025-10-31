@@ -28,7 +28,9 @@ class TelegramMessageClient(Protocol):
     def requires_auth(self) -> bool:
         """Return True when the client requires authenticated configuration."""
 
-    def fetch_messages(self, channel_id: str, limit: int) -> List[dict[str, object]]:
+    def fetch_messages(
+        self, channel_id: str, limit: int, offset_date: datetime | None = None
+    ) -> List[dict[str, object]]:
         """Return deterministic message payloads."""
 
 
@@ -42,9 +44,11 @@ class DeterministicTelegramClient:
     def __init__(self) -> None:
         self._base_timestamp = datetime(2024, 1, 1, tzinfo=timezone.utc)
 
-    def fetch_messages(self, channel_id: str, limit: int) -> List[dict[str, object]]:
+    def fetch_messages(
+        self, channel_id: str, limit: int, offset_date: datetime | None = None
+    ) -> List[dict[str, object]]:
         base_label = channel_id.lstrip("@") or "channel"
-        return [
+        messages = [
             {
                 "id": idx + 1,
                 "timestamp": (
@@ -54,6 +58,16 @@ class DeterministicTelegramClient:
             }
             for idx in range(limit)
         ]
+
+        # Filter messages if offset_date is provided
+        if offset_date is not None:
+            messages = [
+                msg
+                for msg in messages
+                if datetime.fromisoformat(msg["timestamp"]) > offset_date
+            ]
+
+        return messages
 
 
 class TelethonTelegramClient:
@@ -68,7 +82,9 @@ class TelethonTelegramClient:
     def __init__(self, config: TelegramConfig) -> None:
         self._config = config
 
-    def fetch_messages(self, channel_id: str, limit: int) -> List[dict[str, object]]:
+    def fetch_messages(
+        self, channel_id: str, limit: int, offset_date: datetime | None = None
+    ) -> List[dict[str, object]]:
         try:
             from telethon.sessions import StringSession
             from telethon.sync import TelegramClient
@@ -102,7 +118,9 @@ class TelethonTelegramClient:
                 client.start(**start_kwargs)
             else:
                 client.start()
-            for message in client.iter_messages(channel_id, limit=limit):
+            for message in client.iter_messages(
+                channel_id, limit=limit, offset_date=offset_date
+            ):
                 if message is None:
                     continue
                 payload = message.to_dict()
@@ -125,6 +143,7 @@ def collect_messages(
     channel_id: str | None = None,
     db_path: str | Path | None = None,
     telegram_client: TelegramMessageClient,
+    offset_date: datetime | None = None,
 ) -> CollectionOutcome:
     """Persist messages using the provided Telegram client."""
     if telegram_client is None:
@@ -138,7 +157,9 @@ def collect_messages(
         target_channel = channel_id
 
     resolved_path = resolve_db_path(db_path)
-    messages = telegram_client.fetch_messages(target_channel, limit)
+    messages = telegram_client.fetch_messages(
+        target_channel, limit, offset_date=offset_date
+    )
     stored = persist_messages(target_channel, messages, db_path=resolved_path)
     return CollectionOutcome(
         channel_id=target_channel,

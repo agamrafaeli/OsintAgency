@@ -1,14 +1,22 @@
 # Agents System Architecture
 
 ## Quick Map
-- **CLI**: `osintagency/cli/cli.py` defines the Click entry points and forwards parsed options into `osintagency/cli/commands/`, keeping parsing concerns isolated from business code.
-- **Commands**: `osintagency/cli/commands/check_credentials.py` and `osintagency/cli/commands/fetch_channel.py` expose `*_command` functions that simply relay CLI arguments to the underlying action layer or direct persistence functions.
-- **Logging**: `osintagency/logging_config.py` centralizes logger configuration, exposing module loggers and a console logger that sends info-level output to stdout while routing warnings and errors to stderr so CLI integrations capture deterministic JSON lines.
-- **Telegram Actions**: `osintagency/actions/check_credentials_action.py` and `osintagency/actions/fetch_channel_action.py` encapsulate credential validation and deterministic collection, relying on configuration helpers in `osintagency/config.py` and persistence routines in `osintagency/storage.py`.
-- **Raw Storage**: Messages are persisted to a local SQLite database via the Peewee ORM models in `osintagency.schema`, keyed by channel and message id to keep ingestion idempotent.
-- **Subscription Management**: Channel subscriptions are tracked in the same SQLite database via `osintagency/subscription.py`, which provides functions to add, retrieve, update, and remove channel subscriptions with metadata support. The `subscribe` CLI command group in `osintagency/cli/subscribe_commands.py` provides subcommands for add, list, update, remove, and fetch operations. The fetch action (`osintagency/actions/fetch_subscriptions_action.py`) collects messages from all active subscriptions.
-- **Enrichment**: A summarization routine scans stored rows and emits per-channel and keyword aggregates as JSON snapshots.
-- **Display**: A static dashboard loads the latest JSON snapshot to present counts and highlight notable references.
+
+* CLI: `cli/cli.py` defines entry points using Click, parsing options and passing them to command modules in `cli/commands/`. Supports an optional `--days` flag for date-limited message fetching.
+
+* Commands: `cli/commands/check_credentials.py` and `cli/commands/fetch_channel.py` simply forward arguments to the corresponding action modules. The `--days` option is converted into an `offset_date` filter.
+
+* Logging: `logging_config.py` sets up loggers so info messages go to stdout and warnings/errors go to stderr, keeping CLI output structured.
+
+* Actions: `actions/fetch_channel_action.py` and `actions/check_credentials_action.py` perform the actual Telegram operations, using helpers from `config.py` and persistence from `storage.py`.
+
+* Collector: `collector.py` implements both test and live Telegram clients, each supporting optional offset_date for bounded message fetching.
+
+* Storage: `schema.py` defines Peewee models that store messages in SQLite, keyed by channel and message ID to prevent duplicates.
+
+* Enrichment: `enrichment.py` processes stored messages and generates per-channel and keyword summary JSON files.
+
+* Display: `dashboard/` contains static files that visualize the latest summary with counts, highlights, and visibility.
 
 ## Storage and Display Flow
 ```
