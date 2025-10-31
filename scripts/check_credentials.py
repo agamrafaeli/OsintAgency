@@ -4,9 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 
 from osintagency.config import ConfigurationError, load_telegram_config
+from osintagency.storage import resolve_db_path
 
 
 def _generate_session_string(config):
@@ -61,6 +63,15 @@ def main() -> int:
         print(f"Configuration error: {err}", file=sys.stderr)
         return 1
 
+    db_env_raw = os.getenv("OSINTAGENCY_DB_PATH")
+    db_override = db_env_raw if db_env_raw else None
+    db_path = resolve_db_path(db_override)
+    try:
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as err:
+        print(f"Database path {db_path} is not usable: {err}", file=sys.stderr)
+        return 1
+
     if args.generate_session:
         session = _generate_session_string(config)
         if session is None:
@@ -72,6 +83,10 @@ def main() -> int:
     print("Credential check succeeded.")
     print(f"Authentication mode: {config.auth_mode}")
     print(f"Target channel id: {config.target_channel}")
+    if db_override:
+        print(f"OSINTAGENCY_DB_PATH override: {db_path}")
+    else:
+        print(f"Using default database path: {db_path}")
     return 0
 
 

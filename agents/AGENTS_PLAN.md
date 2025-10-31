@@ -20,9 +20,16 @@ When planning / executing a step from this plan:
 
 ## Current Steps to run
 
-- Stabilize Data Hygiene
-  Add configuration plumbing so the collector honors the `OSINTAGENCY_DB_PATH` when building isolated databases per run. Replace live Telegram calls with a deterministic ~50 LOC stub that exercises ingestion and cleanup flows.
-  End-to-end test: Running the full flow for one channel and five messages creates the expected database in the configured path, deleting it leaves no residual database.
+- Decouple CLI from "modules"
+modify `fetch_channel` and `check_credentials so that they are methods. Create `cli/` folder with `cli.py` and `parser.py` fo the CLI parsing logic. Modify tests, and create new ones.
+  End-to-end test: Running the full flow from cli as well as running all tests
+
+- Rename DeterministicTelegramStub to be agnostic to the fact that it is used as dependency injection for tests
+End-to-end test: no need.
+
+- resolve_db_path should be just one method in `storage.py`, not public and private
+
+- Use centralized logger instead of `print`. Add `AGENTS_LOGGING.md` file in `agents/` framework
 
 - Compute Aggregate Summaries
   Implement a lightweight analysis routine that reads stored posts and tallies counts by channel and keyword. Expose the summary as a JSON artifact consumable by downstream interfaces.

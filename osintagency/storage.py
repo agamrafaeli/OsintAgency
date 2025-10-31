@@ -14,6 +14,12 @@ from .schema import StoredMessage, database_proxy
 DEFAULT_DB_FILENAME = "messages.sqlite3"
 _current_db_path: Path | None = None
 
+def resolve_db_path(
+    override: str | os.PathLike[str] | None = None,
+) -> Path:
+    """Public helper to resolve the active Sqlite database path."""
+    return _resolve_db_path(override)
+
 
 def persist_messages(
     channel_id: str,
