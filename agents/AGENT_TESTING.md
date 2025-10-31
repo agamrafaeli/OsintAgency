@@ -22,6 +22,12 @@ This guide clarifies when to exercise the test suite and how to keep the shared 
    ```
 4. For verbose failure details during debugging, drop the `-q` flag and optionally add `-vv`.
 
+## Logging Expectations
+
+- Use `get_console_logger()` in CLI-facing code so Click-based tests capture stdout JSON lines without parsing errors.
+- When validating diagnostics, prefer `caplog` or `CliRunner` result logging over raw `print` calls to keep the central logger authoritative.
+- Avoid calling `logging.basicConfig` inside tests; the shared configuration in `osintagency.logging_config` should stay in control unless a test explicitly resets handlers.
+
 ## Managing the `tests/` Folder
 
 - Keep all automated tests under `tests/` so they are collected automatically by `pytest`.

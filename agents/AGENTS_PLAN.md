@@ -18,12 +18,10 @@ When planning / executing a step from this plan:
 - Test file names must NOT contain "step" references (e.g., avoid `test_step_01_foo.py`). Tests should be named descriptively based on what they test, agnostic of when they were written or which plan step they fulfill.
 - Unless specifically asked, only do one step at a time. 
 
-## Current Steps to run
+## Planned Steps
 
-- Reuse DeterministicTelegramClient for dependency injection for tests. Make sure tests run the specific CLI command, and remove the `main()` from `cli.py`. This is so that tests are in pure python and don't use `shell` to run themselves. Also, remove the wrapping of `stdout` and `stderr` for the CLI commands.
-End-to-end test: no need.
 
-- Use centralized logger instead of `print`. Add `AGENTS_LOGGING.md` file in `agents/` framework
+- Change fetch_channel from CLI by default to bring up to date messages from channel. And allow a flag for using the Stub, just to check writing to the DB.
 
 - Compute Aggregate Summaries
   Implement a lightweight analysis routine that reads stored posts and tallies counts by channel and keyword. Expose the summary as a JSON artifact consumable by downstream interfaces.

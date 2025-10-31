@@ -6,6 +6,7 @@ import click
 
 from .commands import check_credentials as check_credentials_module
 from .commands import fetch_channel as fetch_channel_module
+from .decorators import osintagency_cli_command
 
 
 @click.command(name="fetch-channel")
@@ -36,6 +37,7 @@ from .commands import fetch_channel as fetch_channel_module
     help="Delete the configured message store instead of collecting messages.",
 )
 @click.pass_context
+@osintagency_cli_command(log_level_param="log_level")
 def fetch_channel_command(
     ctx: click.Context,
     limit: int,
@@ -74,6 +76,7 @@ def fetch_channel_command(
     ),
 )
 @click.pass_context
+@osintagency_cli_command()
 def check_credentials_command(
     ctx: click.Context,
     refresh_env: bool,

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import logging
 import os
 
 from ..collector import (
@@ -11,9 +10,10 @@ from ..collector import (
     collect_with_stub,
     purge_database_file,
 )
+from ..logging_config import configure_logging, get_console_logger, get_logger
 from ..storage import resolve_db_path
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def fetch_channel_action(
@@ -26,7 +26,8 @@ def fetch_channel_action(
     telegram_client: TelegramMessageClient | None = None,
 ) -> int:
     """Persist deterministic messages or clean up the backing database."""
-    logging.basicConfig(level=getattr(logging, log_level.upper(), logging.WARNING))
+    configure_logging(log_level)
+    console = get_console_logger()
 
     if cleanup:
         target = resolve_db_path(db_path)
@@ -55,7 +56,7 @@ def fetch_channel_action(
         outcome.db_path,
     )
     for message in outcome.messages:
-        print(json.dumps(message, ensure_ascii=False))
+        console.info(json.dumps(message, ensure_ascii=False))
     return 0
 
 

@@ -3,6 +3,7 @@
 ## Quick Map
 - **CLI**: `osintagency/cli/cli.py` defines the Click entry points and forwards parsed options into `osintagency/cli/commands/`, keeping parsing concerns isolated from business code.
 - **Commands**: `osintagency/cli/commands/check_credentials.py` and `osintagency/cli/commands/fetch_channel.py` expose `*_command` functions that simply relay CLI arguments to the underlying action layer.
+- **Logging**: `osintagency/logging_config.py` centralizes logger configuration, exposing module loggers and a console logger that sends info-level output to stdout while routing warnings and errors to stderr so CLI integrations capture deterministic JSON lines.
 - **Telegram Actions**: `osintagency/actions/check_credentials_action.py` and `osintagency/actions/fetch_channel_action.py` encapsulate credential validation and deterministic collection, relying on configuration helpers in `osintagency/config.py` and persistence routines in `osintagency/storage.py`.
 - **Raw Storage**: Messages are persisted to a local SQLite database via the Peewee ORM models in `osintagency.schema`, keyed by channel and message id to keep ingestion idempotent.
 - **Enrichment**: A summarization routine scans stored rows and emits per-channel and keyword aggregates as JSON snapshots.
