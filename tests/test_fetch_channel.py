@@ -68,7 +68,7 @@ def test_stub_mode_collects_without_auth(tmp_path, monkeypatch: pytest.MonkeyPat
     assert len(rows) == 2
 
 
-def test_cleanup_command_removes_database(tmp_path, monkeypatch: pytest.MonkeyPatch):
+def test_setup_cleanup_removes_database(tmp_path, monkeypatch: pytest.MonkeyPatch):
     db_path = tmp_path / "collector" / "messages.sqlite3"
     monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(db_path))
     collect_messages(
@@ -82,7 +82,7 @@ def test_cleanup_command_removes_database(tmp_path, monkeypatch: pytest.MonkeyPa
     runner = CliRunner()
     result = runner.invoke(
         cli,
-        ["cleanup-database", "--db-path", str(db_path), "--log-level", "info"],
+        ["setup", "cleanup", "--db-path", str(db_path), "--log-level", "info"],
     )
 
     assert result.exit_code == 0

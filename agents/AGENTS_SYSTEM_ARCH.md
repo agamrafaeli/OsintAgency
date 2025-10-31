@@ -2,13 +2,13 @@
 
 ## Quick Map
 
-* CLI: `cli/cli.py` defines entry points using Click, parsing options and passing them to command modules in `cli/commands/`. Supports an optional `--days` flag for date-limited message fetching.
+* CLI: `cli/cli.py` defines entry points using Click, parsing options and passing them to command modules in `cli/commands/`. Supports an optional `--days` flag for date-limited message fetching and exposes a `setup` command group (`cli/setup_commands.py`) that currently provides the `cleanup` subcommand for purging the SQLite store.
 
 * Commands: `cli/commands/check_credentials.py` and `cli/commands/fetch_channel.py` simply forward arguments to the corresponding action modules. The `--days` option is converted into an `offset_date` filter.
 
 * Logging: `logging_config.py` sets up loggers so info messages go to stdout and warnings/errors go to stderr, keeping CLI output structured.
 
-* Actions: `actions/fetch_channel_action.py` and `actions/check_credentials_action.py` perform the actual Telegram operations, using helpers from `config.py` and persistence from `storage.py`.
+* Actions: `actions/fetch_channel_action.py`, `actions/check_credentials_action.py`, and `actions/cleanup_database_action.py` perform the actual Telegram operations, using helpers from `config.py` and persistence from `storage.py`.
 
 * Collector: `collector.py` implements both test and live Telegram clients, each supporting optional offset_date for bounded message fetching.
 

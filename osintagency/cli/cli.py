@@ -5,9 +5,9 @@ from __future__ import annotations
 import click
 
 from .commands import check_credentials as check_credentials_module
-from .commands import cleanup_database as cleanup_database_module
 from .commands import fetch_channel as fetch_channel_module
 from .decorators import osintagency_cli_command
+from .setup_commands import setup_group
 from .subscribe_commands import subscribe_group
 
 
@@ -70,32 +70,6 @@ def fetch_channel_command(
     ctx.exit(exit_code)
 
 
-@click.command(name="cleanup-database")
-@click.option(
-    "--db-path",
-    help="Explicit database path override. Falls back to OSINTAGENCY_DB_PATH when omitted.",
-)
-@click.option(
-    "--log-level",
-    default="WARNING",
-    show_default=True,
-    help="Python logging level.",
-)
-@click.pass_context
-@osintagency_cli_command(log_level_param="log_level")
-def cleanup_database_command(
-    ctx: click.Context,
-    db_path: str | None,
-    log_level: str,
-) -> None:
-    """Delete the configured message store."""
-    exit_code = cleanup_database_module.cleanup_database_command(
-        db_path=db_path,
-        log_level=log_level,
-    )
-    ctx.exit(exit_code)
-
-
 @click.command(name="check-credentials")
 @click.option(
     "--refresh-env",
@@ -132,7 +106,7 @@ def cli() -> None:
 
 cli.add_command(fetch_channel_command)
 cli.add_command(check_credentials_command)
-cli.add_command(cleanup_database_command)
+cli.add_command(setup_group)
 cli.add_command(subscribe_group)
 
 

@@ -2,11 +2,8 @@ from __future__ import annotations
 
 from click.testing import CliRunner
 
-from osintagency.cli import (
-    check_credentials_command,
-    cleanup_database_command,
-    fetch_channel_command,
-)
+from osintagency.cli import check_credentials_command, fetch_channel_command
+from osintagency.cli.setup_commands import cleanup_command
 from osintagency.collector import (
     DeterministicTelegramClient,
     TelethonTelegramClient,
@@ -100,7 +97,7 @@ def test_fetch_channel_command_handles_overrides(monkeypatch):
     assert captured["telegram_client"] is telegram_client
 
 
-def test_cleanup_database_command_uses_defaults(monkeypatch):
+def test_setup_cleanup_command_uses_defaults(monkeypatch):
     captured: dict[str, object] = {}
 
     def fake_action(**kwargs):
@@ -108,11 +105,11 @@ def test_cleanup_database_command_uses_defaults(monkeypatch):
         return 0
 
     monkeypatch.setattr(
-        "osintagency.cli.commands.cleanup_database.cleanup_database_action",
+        "osintagency.cli.setup_commands.cleanup_database_module.cleanup_database_command",
         fake_action,
     )
     runner = CliRunner()
-    result = runner.invoke(cleanup_database_command)
+    result = runner.invoke(cleanup_command)
 
     assert result.exit_code == 0
     assert captured["db_path"] is None
@@ -120,7 +117,7 @@ def test_cleanup_database_command_uses_defaults(monkeypatch):
     assert set(captured.keys()) == {"db_path", "log_level"}
 
 
-def test_cleanup_database_command_handles_overrides(monkeypatch):
+def test_setup_cleanup_command_handles_overrides(monkeypatch):
     captured: dict[str, object] = {}
 
     def fake_action(**kwargs):
@@ -128,12 +125,12 @@ def test_cleanup_database_command_handles_overrides(monkeypatch):
         return 3
 
     monkeypatch.setattr(
-        "osintagency.cli.commands.cleanup_database.cleanup_database_action",
+        "osintagency.cli.setup_commands.cleanup_database_module.cleanup_database_command",
         fake_action,
     )
     runner = CliRunner()
     result = runner.invoke(
-        cleanup_database_command,
+        cleanup_command,
         ["--db-path", "/tmp/messages.sqlite3", "--log-level", "info"],
     )
 
