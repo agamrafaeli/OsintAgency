@@ -20,8 +20,12 @@ When planning / executing a step from this plan:
 
 ## Current Steps to run
 
-1. Refresh Root README
-Write a super basic `README.md`. Should state that this repo reads telegram for Quran mentions, and then gives a dashboard of how the Quran is quoted on different telegram channels.
+1. Prime Architecture Boilerplate
+Add an interaction-friendly scaffold to `agents/AGENTS_SYSTEM_ARCH.md` that mirrors the spirit of the plan file but in a lightweight way. Include a short checklist for recording current understanding, open questions, and next refinement steps.
+End-to-end test: N/A
+
+2. Flesh Architecture Notes
+Expand `agents/AGENTS_SYSTEM_ARCH.md` with the current components, data flows, and integration points so contributors can see how the agents fit into the platform. Include any open questions or assumptions that still need validation.
 End-to-end test: N/A
 
 
@@ -29,7 +33,7 @@ End-to-end test: N/A
 
 When a step is completed:
 
-1. **Remove the completed step** from this file (agents/AGENTS_PLAN.md). If it was the last step to be removed, then write a <PLACEHOLDER> for future writings to this file of new plans.
+1. **Confirm with a human** before removing a completed step from this file (agents/AGENTS_PLAN.md); removal is a human-only decision. Once confirmed, **remove the completed step** and, if it was the last step to be removed, write a <PLACEHOLDER> for future writings to this file of new plans.
 2. **Renumber remaining steps** sequentially (Step N becomes Step N-1)
 3. **Update docs/05-implementation-guide.md**:
    - Update the **Status** line to reflect current completion state

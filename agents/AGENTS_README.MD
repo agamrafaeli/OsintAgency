@@ -15,7 +15,7 @@ Quick reference for how automation agents should interact with the **OsintAgency
 
 ## Workflow Rules
 
-1. **Read the plan first.** Confirm the current step, clarify it if ambiguous, and update the plan as progress is made.
+1. **Read the plan first.** Confirm the current step, clarify it if ambiguous, update the plan as progress is made, and advance the step’s deliverable before proposing new tasks.
 2. **Work in TDD loops.** Write or adjust tests, watch them fail, implement changes, then rerun tests until they pass.
 3. **Respect existing changes.** Never discard user edits that were already present; integrate with them instead.
 4. **Document after code.** Update this README, the plan, architecture notes, and top-level docs as required by each step.
@@ -30,10 +30,10 @@ Quick reference for how automation agents should interact with the **OsintAgency
 
 1. Remove finished steps from `agents/AGENTS_PLAN.md` and renumber the remainder.
 2. Update documentation listed in the plan’s “Documentation Update Process” section (create missing files if needed).
-3. Announce remaining TODOs or follow-up items in your final response so humans can pick up quickly.
+3. Announce remaining TODOs or follow-up items in your final response so humans can pick up quickly, and record any scope clarifications so the next contributor inherits the context.
 
 ## Troubleshooting
 
 - Missing tests? Write new descriptive test files; do not include step numbers in filenames.
-- Unsure about architecture? Add a placeholder note in `agents/AGENTS_SYSTEM_ARCH.md` and flag it in your summary.
+- Unsure about architecture? Add a placeholder note in `agents/AGENTS_SYSTEM_ARCH.md`, ensure a scaffold exists when Step 1 is active, and flag it in your summary.
 - Sandbox errors? Explain the limitation in your summary and suggest manual follow-up steps.
