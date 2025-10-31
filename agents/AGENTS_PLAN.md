@@ -20,13 +20,25 @@ When planning / executing a step from this plan:
 
 ## Current Steps to run
 
-1. Prime Architecture Boilerplate
-Add an interaction-friendly scaffold to `agents/AGENTS_SYSTEM_ARCH.md` that mirrors the spirit of the plan file but in a lightweight way. Include a short checklist for recording current understanding, open questions, and next refinement steps.
-End-to-end test: N/A
+1. Acquire Access Credentials
+Secure Telegram API credentials (bot token or user session) and document how to place them in a local env file. Ensure `.env.example` points to the required keys so new developers can run the prototype instantly.
+End-to-end test: Running a credential smoke script prints the configured channel id without errors.
 
-2. Flesh Architecture Notes
-Expand `agents/AGENTS_SYSTEM_ARCH.md` with the current components, data flows, and integration points so contributors can see how the agents fit into the platform. Include any open questions or assumptions that still need validation.
-End-to-end test: N/A
+2. Prototype Channel Fetcher
+Write a single script that downloads the latest posts from one target channel using the credentials. Hard-code minimal fields (id, timestamp, text) and log them to stdout for quick inspection.
+End-to-end test: Executing `python scripts/fetch_channel.py --limit 5` returns posts without exceptions.
+
+3. Store Raw Messages
+Persist the fetched posts into a lightweight local store such as SQLite with a schema matching the architecture doc. Re-run the fetcher to upsert posts and confirm duplicates are skipped.
+End-to-end test: Invoking the fetcher twice leaves the stored message count unchanged except for new posts.
+
+4. Compute Aggregate Summaries
+Add a tiny analysis routine that reads the stored posts and calculates counts by channel and keyword references. Emit the results as a JSON blob the UI can consume.
+End-to-end test: Running `python scripts/summarize_posts.py` outputs aggregate counts for sample data.
+
+5. Render Metric Dashboard
+Build a bare-bones view that surfaces the aggregate metrics, focusing on total posts and top Quran references. Keep it static and depend only on the generated JSON summary.
+End-to-end test: Serving the dashboard locally shows counts that match the JSON summary.
 
 
 ## Documentation Update Process
@@ -35,13 +47,8 @@ When a step is completed:
 
 1. **Confirm with a human** before removing a completed step from this file (agents/AGENTS_PLAN.md); removal is a human-only decision. Once confirmed, **remove the completed step** and, if it was the last step to be removed, write a <PLACEHOLDER> for future writings to this file of new plans.
 2. **Renumber remaining steps** sequentially (Step N becomes Step N-1)
-3. **Update docs/05-implementation-guide.md**:
-   - Update the **Status** line to reflect current completion state
-   - Add any new CLI commands or usage examples
-4. **Update README.md**:   
+3. **Update README.md**:   
    - Changes to main features
    - Add any specific workflows that are main enough
-5. **Update docs/01-executive-summary.md** if architecture changed
-6. **Update docs/02-technical-agents.md** if new agents were added
 
 This keeps documentation in sync with actual implementation progress.
