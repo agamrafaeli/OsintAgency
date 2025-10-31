@@ -14,15 +14,12 @@ If not, then offer your best understanding of what the step should be. And itera
 # Execution guidelines for agents reading from this file
 When planning / executing a step from this plan:
 - If a test is not well defined (step name in three words + descritpion in two sentences + test if needed) then first re-word it in `AGENTS_PLAN.md` and only then proceed.
+- Generally when interacting with tests follow the guidance of `AGENTS_TESTING.md`
 - When developing use TDD, meaning write a test, make sure it fails, then add code and make sure the tests pass.
 - Test file names must NOT contain "step" references (e.g., avoid `test_step_01_foo.py`). Tests should be named descriptively based on what they test, agnostic of when they were written or which plan step they fulfill.
 - Unless specifically asked, only do one step at a time. 
 
 ## Planned Steps
-
-- Implement Fetch Subscriptions
-  Specify the CLI flow for fetching all subscribed channels through a failing test suite before touching the code. Build the fetch workflow so the command processes every stored subscription successfully.
-  End-to-end test: pytest tests/test_fetch_subscribed_channels.py
 
 - Add ability to fetch large amounts (100k and up) of messages. First brainstorm approaches on how to do this, only then do it.
 

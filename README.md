@@ -16,7 +16,8 @@ The repository is under active build-out. Follow the plans in `agents/AGENTS_PLA
    - List: `python -m osintagency.cli.cli subscribe list` (use `--format json` for JSON output)
    - Update: `python -m osintagency.cli.cli subscribe update --channel-id @example_channel --name "New Name"`
    - Remove: `python -m osintagency.cli.cli subscribe remove --channel-id @example_channel`
-5. Prototype data collection via `python -m osintagency.cli.cli fetch-channel --limit 5` to pull the latest posts into the local store. Add `--use-stub` to emit a deterministic batch when validating persistence, or `--cleanup` to delete the generated SQLite database when you are done.
+   - Fetch all: `python -m osintagency.cli.cli subscribe fetch --limit 5` to fetch messages from all active subscribed channels
+5. Prototype data collection from a single channel via `python -m osintagency.cli.cli fetch-channel --limit 5` to pull the latest posts into the local store. Add `--use-stub` to emit a deterministic batch when validating persistence, or `--cleanup` to delete the generated SQLite database when you are done.
 
 ## Data Storage
 

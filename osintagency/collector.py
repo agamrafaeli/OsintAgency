@@ -130,8 +130,13 @@ def collect_messages(
     if telegram_client is None:
         raise ValueError("telegram_client must be provided for collection.")
 
-    config = load_telegram_config(require_auth=telegram_client.requires_auth)
-    target_channel = channel_id or config.target_channel
+    # Only load config if we need target_channel from it
+    if channel_id is None:
+        config = load_telegram_config(require_auth=telegram_client.requires_auth)
+        target_channel = config.target_channel
+    else:
+        target_channel = channel_id
+
     resolved_path = resolve_db_path(db_path)
     messages = telegram_client.fetch_messages(target_channel, limit)
     stored = persist_messages(target_channel, messages, db_path=resolved_path)

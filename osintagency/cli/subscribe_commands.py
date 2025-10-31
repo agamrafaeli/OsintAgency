@@ -7,6 +7,9 @@ import sys
 
 import click
 
+from ..actions.fetch_subscriptions_action import fetch_subscriptions_action
+from ..collector import TelethonTelegramClient
+from ..config import load_telegram_config
 from ..subscription import (
     add_subscription,
     get_subscriptions,
@@ -222,6 +225,50 @@ def remove_command(
     except Exception as e:
         print(f"Error removing subscription for {channel_id}: {e}", file=sys.stderr)
         ctx.exit(1)
+
+
+@subscribe_group.command(name="fetch")
+@click.option(
+    "--limit",
+    type=int,
+    default=5,
+    show_default=True,
+    help="Number of recent posts to retrieve from each channel.",
+)
+@click.option(
+    "--db-path",
+    help="Explicit database path override. Falls back to OSINTAGENCY_DB_PATH when omitted.",
+)
+@click.option(
+    "--log-level",
+    default="WARNING",
+    show_default=True,
+    help="Python logging level.",
+)
+@click.pass_context
+@osintagency_cli_command(log_level_param="log_level")
+def fetch_command(
+    ctx: click.Context,
+    limit: int,
+    db_path: str | None,
+    log_level: str,
+) -> None:
+    """Fetch messages from all active subscribed channels."""
+    telegram_client = None
+    if ctx.obj:
+        telegram_client = ctx.obj.get("telegram_client")
+
+    if telegram_client is None:
+        config = load_telegram_config(require_auth=True)
+        telegram_client = TelethonTelegramClient(config)
+
+    exit_code = fetch_subscriptions_action(
+        limit=limit,
+        db_path=db_path,
+        log_level=log_level,
+        telegram_client=telegram_client,
+    )
+    ctx.exit(exit_code)
 
 
 __all__ = ["subscribe_group"]
