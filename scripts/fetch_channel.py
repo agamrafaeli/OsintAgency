@@ -10,6 +10,7 @@ import logging
 from typing import Any, Dict, List
 
 from osintagency.config import ConfigurationError, load_telegram_config
+from osintagency.storage import persist_messages
 
 
 logger = logging.getLogger(__name__)
@@ -72,6 +73,15 @@ async def async_main(args) -> int:
         return 1
     finally:
         await client.disconnect()
+
+    try:
+        stored_count = persist_messages(target_channel, messages)
+        logger.info(
+            "Persisted %d message(s) for channel %s", stored_count, target_channel
+        )
+    except Exception:
+        logger.exception("Failed to persist messages for %s", target_channel)
+        return 1
 
     if not messages:
         logger.warning("No messages returned for %s", target_channel)

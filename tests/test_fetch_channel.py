@@ -125,3 +125,66 @@ async def test_fetch_messages_trims_text(monkeypatch):
         {"id": 2, "timestamp": None, "text": ""},
     ]
 
+
+@pytest.mark.asyncio
+async def test_async_main_upserts_messages(tmp_path, monkeypatch):
+    db_path = tmp_path / "messages.sqlite"
+    monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(db_path))
+
+    config = TelegramConfig(
+        api_id=123,
+        api_hash="hash",
+        target_channel="@channel",
+        session_string=None,
+        bot_token="bot-token",
+    )
+    monkeypatch.setattr(fetch_channel, "load_telegram_config", lambda: config)
+
+    class DummyClient:
+        async def disconnect(self):
+            pass
+
+    async def fake_create_client(config):
+        return DummyClient()
+
+    monkeypatch.setattr(fetch_channel, "_create_client", fake_create_client)
+    monkeypatch.setattr(
+        fetch_channel, "_load_telethon", lambda: (None, None, RuntimeError)
+    )
+
+    fetch_batches = [
+        [
+            {"id": 1, "timestamp": "2024-01-01T00:00:00", "text": "one"},
+            {"id": 2, "timestamp": "2024-01-01T00:05:00", "text": "two"},
+        ],
+        [
+            {"id": 2, "timestamp": "2024-01-01T00:05:00", "text": "two"},
+            {"id": 3, "timestamp": "2024-01-01T00:10:00", "text": "three"},
+        ],
+    ]
+
+    async def fake_fetch(client, channel, limit):
+        return fetch_batches.pop(0)
+
+    monkeypatch.setattr(fetch_channel, "_fetch_messages", fake_fetch)
+
+    args = SimpleNamespace(channel=None, limit=10)
+
+    rc1 = await fetch_channel.async_main(args)
+    rc2 = await fetch_channel.async_main(args)
+
+    assert rc1 == 0
+    assert rc2 == 0
+
+    import sqlite3
+
+    with sqlite3.connect(db_path) as conn:
+        rows = conn.execute(
+            "SELECT channel_id, message_id, text FROM messages ORDER BY message_id"
+        ).fetchall()
+
+    assert rows == [
+        ("@channel", 1, "one"),
+        ("@channel", 2, "two"),
+        ("@channel", 3, "three"),
+    ]

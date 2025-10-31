@@ -11,4 +11,10 @@ The repository is under active build-out. Follow the plans in `agents/AGENTS_PLA
 1. Copy `.env.example` to `.env` and fill in the Telegram API credentials. Provide either a user session string or a bot token along with the target channel identifier.
 2. Create a virtual environment and install dependencies: `python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`.
 3. Validate the environment with `python -m scripts.check_credentials --generate-session`; this signs in once, prints a `TELEGRAM_SESSION_STRING`, and verifies the configured channel.
-4. Prototype data collection via `python -m scripts.fetch_channel --limit 5` to stream the most recent posts to stdout.
+4. Prototype data collection via `python -m scripts.fetch_channel --limit 5` to stream the most recent posts to stdout and persist them for later analysis.
+
+## Data Storage
+
+- Raw Telegram posts are written to a SQLite database at `data/messages.sqlite3` by default.
+- Override the location by setting the `OSINTAGENCY_DB_PATH` environment variable before invoking any fetch commands.
+- Re-running the fetcher upserts messages keyed by channel and Telegram id, so only new posts increase the stored row count.

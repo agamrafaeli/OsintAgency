@@ -20,13 +20,19 @@ When planning / executing a step from this plan:
 
 ## Current Steps to run
 
-- Store Raw Messages
-Persist the fetched posts into a lightweight local store such as SQLite with a schema matching the architecture doc. Re-run the fetcher to upsert posts and confirm duplicates are skipped.
-End-to-end test: Invoking the fetcher twice leaves the stored message count unchanged except for new posts.
+- Use Peewee for minimal ORM
+Use Peewee as an ORM: single model for messages. should be used in code and tests. Also update documentation
+End-to-end test: No direct usage of SQLlite other than in single file that abstracts it away ysing pewwee
+
+- Basic flows for data hygenie
+Use `OSINTAGENCY_DB_PATH` to create a mock DB for all runs. Mock away the actual API calls to telegram, found a very simple (~50 LOC) way to "mock" messages so that end-to-end flows can be tested.
+End-to-end test: run full flow of system for one channel and five messages, see full DB is created, delete the db, check that no db exists
 
 - Compute Aggregate Summaries
 Add a tiny analysis routine that reads the stored posts and calculates counts by channel and keyword references. Emit the results as a JSON blob the UI can consume.
 End-to-end test: Running `python scripts/summarize_posts.py` outputs aggregate counts for sample data.
+
+
 
 - Render Metric Dashboard
 Build a bare-bones view that surfaces the aggregate metrics, focusing on total posts and top Quran references. Keep it static and depend only on the generated JSON summary.
