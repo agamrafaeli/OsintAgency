@@ -11,7 +11,7 @@ The repository is under active build-out. Follow the plans in `agents/AGENTS_PLA
 1. Copy `.env.example` to `.env` and fill in the Telegram API credentials. Provide either a user session string or a bot token along with the target channel identifier.
 2. Create a virtual environment and install dependencies: `python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`.
 3. Validate the environment with `python -m osintagency.cli.cli check-credentials --generate-session`; this confirms the configured channel, ensures the database path is writable, and can optionally sign in once to print a `TELEGRAM_SESSION_STRING`.
-4. Prototype data collection via `python -m osintagency.cli.cli fetch-channel --limit 5` to emit a deterministic batch of stubbed posts and persist them for later analysis. Add `--cleanup` to delete the generated SQLite database when you are done.
+4. Prototype data collection via `python -m osintagency.cli.cli fetch-channel --limit 5` to pull the latest posts into the local store. Add `--use-stub` to emit a deterministic batch when validating persistence, or `--cleanup` to delete the generated SQLite database when you are done.
 
 ## Data Storage
 

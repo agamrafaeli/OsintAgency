@@ -26,6 +26,7 @@ def configure_environment(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_main_collects_messages(tmp_path, monkeypatch: pytest.MonkeyPatch):
     db_path = tmp_path / "collector" / "messages.sqlite3"
     monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(db_path))
+    monkeypatch.setenv("TELEGRAM_SESSION_STRING", "session")
     runner = CliRunner()
     telegram_client = DeterministicTelegramClient()
 
@@ -50,6 +51,21 @@ def test_main_collects_messages(tmp_path, monkeypatch: pytest.MonkeyPatch):
         for message in telegram_client.fetch_messages("@script", limit=3)
     ]
     assert [message["id"] for message in payloads] == expected_ids
+
+
+def test_stub_mode_collects_without_auth(tmp_path, monkeypatch: pytest.MonkeyPatch):
+    db_path = tmp_path / "collector" / "messages.sqlite3"
+    monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(db_path))
+    runner = CliRunner()
+
+    result = runner.invoke(
+        cli,
+        ["fetch-channel", "--limit", "2", "--use-stub"],
+    )
+
+    assert result.exit_code == 0
+    rows = storage.fetch_messages("@script", db_path=db_path)
+    assert len(rows) == 2
 
 
 def test_main_cleanup_removes_database(tmp_path, monkeypatch: pytest.MonkeyPatch):

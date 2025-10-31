@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from osintagency import storage
 
 
@@ -30,3 +32,18 @@ def test_persist_messages_handles_empty_batch(tmp_path):
 
     rows = storage.fetch_messages("@channel", db_path=db_path)
     assert rows == []
+
+
+def test_persist_messages_serializes_datetime_payload(tmp_path):
+    db_path = tmp_path / "messages.sqlite"
+    message = {
+        "id": 1,
+        "timestamp": "2024-01-03T00:00:00",
+        "text": "live message",
+        "fetched_at": datetime(2024, 1, 3, 12, 30, tzinfo=timezone.utc),
+    }
+
+    storage.persist_messages("@channel", [message], db_path=db_path)
+    rows = storage.fetch_messages("@channel", db_path=db_path)
+
+    assert rows[0]["raw_payload"]["fetched_at"] == message["fetched_at"].isoformat()

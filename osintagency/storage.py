@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+from datetime import date, datetime
 from typing import Iterable, Mapping, MutableMapping
 
 from peewee import EXCLUDED, SqliteDatabase
@@ -41,7 +42,11 @@ def persist_messages(
             "message_id": message["message_id"],
             "posted_at": message["posted_at"],
             "text": message["text"],
-            "raw_payload": json.dumps(message["raw_payload"], ensure_ascii=False),
+            "raw_payload": json.dumps(
+                message["raw_payload"],
+                ensure_ascii=False,
+                default=_json_default,
+            ),
         }
         for message in message_buffer
     ]
@@ -113,6 +118,14 @@ def _normalize_message(message: Mapping[str, object]) -> MutableMapping[str, obj
         normalized["text"] = str(text) if text is not None else ""
 
     return normalized
+
+
+def _json_default(value: object) -> str:
+    if isinstance(value, (datetime, date)):
+        return value.isoformat()
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return str(value)
 
 
 def resolve_db_path(

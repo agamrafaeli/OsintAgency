@@ -25,12 +25,14 @@ def test_fetch_channel_command_uses_defaults(monkeypatch):
     assert captured["db_path"] is None
     assert captured["log_level"] == "WARNING"
     assert captured["cleanup"] is False
+    assert captured["use_stub"] is False
     assert set(captured.keys()) == {
         "limit",
         "channel",
         "db_path",
         "log_level",
         "cleanup",
+        "use_stub",
         "telegram_client",
     }
     assert captured["telegram_client"] is None
@@ -61,6 +63,7 @@ def test_fetch_channel_command_handles_overrides(monkeypatch):
             "--log-level",
             "info",
             "--cleanup",
+            "--use-stub",
         ],
         obj={"telegram_client": telegram_client},
     )
@@ -71,12 +74,14 @@ def test_fetch_channel_command_handles_overrides(monkeypatch):
     assert captured["db_path"] == "/tmp/messages.sqlite3"
     assert captured["log_level"] == "info"
     assert captured["cleanup"] is True
+    assert captured["use_stub"] is True
     assert set(captured.keys()) == {
         "limit",
         "channel",
         "db_path",
         "log_level",
         "cleanup",
+        "use_stub",
         "telegram_client",
     }
     assert captured["telegram_client"] is telegram_client

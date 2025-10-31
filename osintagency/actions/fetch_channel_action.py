@@ -1,12 +1,14 @@
-"""Business action for deterministic Telegram channel collection."""
+"""Business action for Telegram channel collection."""
 
 from __future__ import annotations
 
 import json
 import os
 
+from ..config import ConfigurationError
 from ..collector import (
     TelegramMessageClient,
+    collect_live,
     collect_with_stub,
     purge_database_file,
 )
@@ -23,9 +25,10 @@ def fetch_channel_action(
     db_path: str | os.PathLike[str] | None,
     cleanup: bool,
     log_level: str,
+    use_stub: bool,
     telegram_client: TelegramMessageClient | None = None,
 ) -> int:
-    """Persist deterministic messages or clean up the backing database."""
+    """Persist Telegram messages or clean up the backing database."""
     configure_logging(log_level)
     console = get_console_logger()
 
@@ -39,14 +42,22 @@ def fetch_channel_action(
         return 0
 
     try:
-        outcome = collect_with_stub(
+        collector = collect_with_stub if use_stub else collect_live
+        outcome = collector(
             limit=limit,
             channel_override=channel,
             db_path=db_path,
             client=telegram_client,
         )
+    except ConfigurationError as err:
+        console.error("Configuration error: %s", err)
+        return 1
+    except RuntimeError as err:
+        console.error("Channel collection failed: %s", err)
+        logger.exception("Channel collection failed.")
+        return 1
     except Exception:  # noqa: BLE001 - surfaced to the console for debugging
-        logger.exception("Deterministic collection failed.")
+        logger.exception("Channel collection failed.")
         return 1
 
     logger.info(
@@ -56,7 +67,7 @@ def fetch_channel_action(
         outcome.db_path,
     )
     for message in outcome.messages:
-        console.info(json.dumps(message, ensure_ascii=False))
+        console.info(json.dumps(message, ensure_ascii=False, default=str))
     return 0
 
 

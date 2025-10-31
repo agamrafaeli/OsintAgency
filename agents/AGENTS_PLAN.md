@@ -21,7 +21,7 @@ When planning / executing a step from this plan:
 ## Planned Steps
 
 
-- Change fetch_channel from CLI by default to bring up to date messages from channel. And allow a flag for using the Stub, just to check writing to the DB.
+- Extract cleanup to its own action from `fetch_channel`
 
 - Compute Aggregate Summaries
   Implement a lightweight analysis routine that reads stored posts and tallies counts by channel and keyword. Expose the summary as a JSON artifact consumable by downstream interfaces.

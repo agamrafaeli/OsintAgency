@@ -13,6 +13,7 @@ def fetch_channel_command(
     db_path: str | None,
     log_level: str,
     cleanup: bool,
+    use_stub: bool,
     telegram_client: TelegramMessageClient | None = None,
 ) -> int:
     """Invoke the fetch-channel action with CLI-provided arguments."""
@@ -22,6 +23,7 @@ def fetch_channel_command(
         db_path=db_path,
         cleanup=cleanup,
         log_level=log_level,
+        use_stub=use_stub,
         telegram_client=telegram_client,
     )
 

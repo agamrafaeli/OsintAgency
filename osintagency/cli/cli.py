@@ -36,6 +36,11 @@ from .decorators import osintagency_cli_command
     is_flag=True,
     help="Delete the configured message store instead of collecting messages.",
 )
+@click.option(
+    "--use-stub",
+    is_flag=True,
+    help="Use the deterministic stub collector instead of live Telegram data.",
+)
 @click.pass_context
 @osintagency_cli_command(log_level_param="log_level")
 def fetch_channel_command(
@@ -45,8 +50,9 @@ def fetch_channel_command(
     db_path: str | None,
     log_level: str,
     cleanup: bool,
+    use_stub: bool,
 ) -> None:
-    """Persist deterministic messages or clean up the backing database."""
+    """Persist Telegram messages or clean up the backing database."""
     telegram_client = None
     if ctx.obj:
         telegram_client = ctx.obj.get("telegram_client")
@@ -56,6 +62,7 @@ def fetch_channel_command(
         db_path=db_path,
         log_level=log_level,
         cleanup=cleanup,
+        use_stub=use_stub,
         telegram_client=telegram_client,
     )
     ctx.exit(exit_code)

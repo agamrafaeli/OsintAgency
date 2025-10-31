@@ -25,6 +25,7 @@ def configure_environment(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_fetch_channel_method_uses_provided_stream(tmp_path, monkeypatch):
     db_path = tmp_path / "collector" / "messages.sqlite3"
     monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(db_path))
+    monkeypatch.setenv("TELEGRAM_SESSION_STRING", "session")
     runner = CliRunner()
     telegram_client = DeterministicTelegramClient()
 
@@ -48,6 +49,21 @@ def test_fetch_channel_method_uses_provided_stream(tmp_path, monkeypatch):
         for message in telegram_client.fetch_messages("@method", limit=2)
     ]
     assert [message["id"] for message in payloads] == expected_ids
+
+
+def test_fetch_channel_stub_mode_writes_messages(tmp_path, monkeypatch):
+    db_path = tmp_path / "collector" / "messages.sqlite3"
+    monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(db_path))
+    runner = CliRunner()
+
+    result = runner.invoke(
+        cli,
+        ["fetch-channel", "--limit", "2", "--use-stub"],
+    )
+
+    assert result.exit_code == 0
+    rows = storage.fetch_messages("@method", db_path=db_path)
+    assert len(rows) == 2
 
 
 def test_check_credentials_method_success(tmp_path, monkeypatch):
