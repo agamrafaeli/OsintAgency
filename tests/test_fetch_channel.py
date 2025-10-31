@@ -8,7 +8,7 @@ import pytest
 from osintagency import storage
 from osintagency.collector import (
     DeterministicTelegramClient,
-    collect_with_stub,
+    collect_messages,
 )
 from osintagency.cli import cli
 
@@ -71,7 +71,12 @@ def test_stub_mode_collects_without_auth(tmp_path, monkeypatch: pytest.MonkeyPat
 def test_cleanup_command_removes_database(tmp_path, monkeypatch: pytest.MonkeyPatch):
     db_path = tmp_path / "collector" / "messages.sqlite3"
     monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(db_path))
-    collect_with_stub(limit=1, db_path=db_path, channel_override="@script")
+    collect_messages(
+        limit=1,
+        db_path=db_path,
+        channel_id="@script",
+        telegram_client=DeterministicTelegramClient(),
+    )
     assert db_path.exists()
 
     runner = CliRunner()

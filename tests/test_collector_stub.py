@@ -21,11 +21,15 @@ def test_stubbed_collection_respects_db_env(monkeypatch: pytest.MonkeyPatch, tmp
 
     from osintagency.collector import (
         CollectionOutcome,
-        collect_with_stub,
+        DeterministicTelegramClient,
+        collect_messages,
         purge_database_file,
     )
 
-    outcome = collect_with_stub(limit=5)
+    outcome = collect_messages(
+        limit=5,
+        telegram_client=DeterministicTelegramClient(),
+    )
 
     assert isinstance(outcome, CollectionOutcome)
     assert outcome.channel_id == "@sample"

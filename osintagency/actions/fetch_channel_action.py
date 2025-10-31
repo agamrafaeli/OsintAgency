@@ -6,7 +6,7 @@ import json
 import os
 
 from ..config import ConfigurationError
-from ..collector import TelegramMessageClient, collect_live, collect_with_stub
+from ..collector import TelegramMessageClient, collect_messages
 from ..logging_config import configure_logging, get_console_logger, get_logger
 
 logger = get_logger(__name__)
@@ -15,23 +15,25 @@ logger = get_logger(__name__)
 def fetch_channel_action(
     *,
     limit: int,
-    channel: str | None,
+    channel_id: str | None,
     db_path: str | os.PathLike[str] | None,
     log_level: str,
-    use_stub: bool,
     telegram_client: TelegramMessageClient | None = None,
 ) -> int:
     """Persist Telegram messages from Telegram into storage."""
     configure_logging(log_level)
     console = get_console_logger()
 
+    if telegram_client is None:
+        console.error("No telegram client provided for collection.")
+        return 1
+
     try:
-        collector = collect_with_stub if use_stub else collect_live
-        outcome = collector(
+        outcome = collect_messages(
             limit=limit,
-            channel_override=channel,
+            channel_id=channel_id,
             db_path=db_path,
-            client=telegram_client,
+            telegram_client=telegram_client,
         )
     except ConfigurationError as err:
         console.error("Configuration error: %s", err)

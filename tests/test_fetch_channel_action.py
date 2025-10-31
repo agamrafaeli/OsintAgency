@@ -6,6 +6,11 @@ from pathlib import Path
 import pytest
 
 from osintagency.actions.fetch_channel_action import fetch_channel_action
+from osintagency.collector import (
+    DeterministicTelegramClient,
+    TelethonTelegramClient,
+)
+from osintagency.config import load_telegram_config
 
 
 class FakeOutcome:
@@ -27,42 +32,46 @@ class StubConsole:
         self.messages.append(f"ERROR: {message}")
 
 
-@pytest.mark.parametrize("use_stub, expected_channel", [(True, "@stub"), (False, "@live")])
-def test_fetch_channel_action_selects_collector(
+@pytest.mark.parametrize(
+    ("channel_id", "requires_auth"),
+    [("@stub", False), ("@live", True)],
+)
+def test_fetch_channel_action_invokes_provided_collector(
     monkeypatch: pytest.MonkeyPatch,
-    use_stub: bool,
-    expected_channel: str,
+    channel_id: str,
+    requires_auth: bool,
 ) -> None:
-    calls: list[str] = []
+    monkeypatch.setenv("OSINTAGENCY_SKIP_DOTENV", "1")
+    monkeypatch.setenv("TELEGRAM_API_ID", "12345")
+    monkeypatch.setenv("TELEGRAM_API_HASH", "hash")
+    monkeypatch.setenv("TELEGRAM_TARGET_CHANNEL", channel_id)
+    monkeypatch.setenv("TELEGRAM_SESSION_STRING", "session")
+    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
+    calls: list[dict[str, object]] = []
 
-    def fake_collect_with_stub(**kwargs):
-        calls.append("stub")
+    def fake_collect_messages(**kwargs):
+        calls.append(kwargs)
         assert kwargs["limit"] == 2
-        assert kwargs["channel_override"] == expected_channel
+        assert kwargs["channel_id"] == channel_id
         assert kwargs["db_path"] == "/tmp/messages.sqlite3"
-        return FakeOutcome(expected_channel)
-
-    def fake_collect_live(**kwargs):
-        calls.append("live")
-        assert kwargs["limit"] == 2
-        assert kwargs["channel_override"] == expected_channel
-        assert kwargs["db_path"] == "/tmp/messages.sqlite3"
-        return FakeOutcome(expected_channel)
+        assert kwargs["telegram_client"].requires_auth is requires_auth
+        return FakeOutcome(channel_id)
 
     action_module = importlib.import_module("osintagency.actions.fetch_channel_action")
     fake_console = StubConsole()
     monkeypatch.setattr(action_module, "get_console_logger", lambda: fake_console)
-    monkeypatch.setattr(action_module, "collect_with_stub", fake_collect_with_stub)
-    monkeypatch.setattr(action_module, "collect_live", fake_collect_live)
+    monkeypatch.setattr(action_module, "collect_messages", fake_collect_messages)
 
     exit_code = fetch_channel_action(
         limit=2,
-        channel=expected_channel,
+        channel_id=channel_id,
         db_path="/tmp/messages.sqlite3",
         log_level="INFO",
-        use_stub=use_stub,
+        telegram_client=DeterministicTelegramClient()
+        if not requires_auth
+        else TelethonTelegramClient(load_telegram_config(require_auth=True)),
     )
 
     assert exit_code == 0
-    assert calls == (["stub"] if use_stub else ["live"])
+    assert len(calls) == 1
     assert fake_console.messages, "Console output should include serialized message"

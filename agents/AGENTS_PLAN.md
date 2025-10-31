@@ -20,8 +20,6 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-- `use_stub` and `telegram_client` and `telegram_client_factory` are a little too overengineering. Offer three approaches on how to simplify it, and then we'll do it.
-
 - Add ability to manage "subscription" to channels by config. so that there are two new cli commands: subscribe (adding the channel to the current config) and fetch_subscribed_channels (which fetches messages from all channels)
 
 - Add ability to fetch large amounts (100k and up) of messages. First brainstorm approaches on how to do this, only then do it.

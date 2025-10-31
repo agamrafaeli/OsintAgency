@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Callable, List, Protocol
+from typing import List, Protocol
 
 from .config import TelegramConfig, load_telegram_config
 from .storage import persist_messages, resolve_db_path
@@ -24,12 +24,20 @@ class CollectionOutcome:
 class TelegramMessageClient(Protocol):
     """Protocol for deterministic Telegram-like clients."""
 
+    @property
+    def requires_auth(self) -> bool:
+        """Return True when the client requires authenticated configuration."""
+
     def fetch_messages(self, channel_id: str, limit: int) -> List[dict[str, object]]:
         """Return deterministic message payloads."""
 
 
 class DeterministicTelegramClient:
     """Generate predictable Telegram-like messages without network access."""
+
+    @property
+    def requires_auth(self) -> bool:
+        return False
 
     def __init__(self) -> None:
         self._base_timestamp = datetime(2024, 1, 1, tzinfo=timezone.utc)
@@ -52,6 +60,10 @@ class TelethonTelegramClient:
     """Fetch real messages from Telegram using Telethon."""
 
     _SESSION_NAME = "osintagency"
+
+    @property
+    def requires_auth(self) -> bool:
+        return True
 
     def __init__(self, config: TelegramConfig) -> None:
         self._config = config
@@ -107,62 +119,27 @@ class TelethonTelegramClient:
         return messages
 
 
-def _collect_messages(
+def collect_messages(
     *,
     limit: int,
-    channel_override: str | None,
-    db_path: str | Path | None,
-    client: TelegramMessageClient | None,
-    require_auth: bool,
-    client_factory: Callable[[TelegramConfig], TelegramMessageClient],
+    channel_id: str | None = None,
+    db_path: str | Path | None = None,
+    telegram_client: TelegramMessageClient,
 ) -> CollectionOutcome:
-    config = load_telegram_config(require_auth=require_auth)
-    channel_id = channel_override or config.target_channel
+    """Persist messages using the provided Telegram client."""
+    if telegram_client is None:
+        raise ValueError("telegram_client must be provided for collection.")
+
+    config = load_telegram_config(require_auth=telegram_client.requires_auth)
+    target_channel = channel_id or config.target_channel
     resolved_path = resolve_db_path(db_path)
-    telegram_client = client or client_factory(config)
-    messages = telegram_client.fetch_messages(channel_id, limit)
-    stored = persist_messages(channel_id, messages, db_path=resolved_path)
+    messages = telegram_client.fetch_messages(target_channel, limit)
+    stored = persist_messages(target_channel, messages, db_path=resolved_path)
     return CollectionOutcome(
-        channel_id=channel_id,
+        channel_id=target_channel,
         stored_messages=stored,
         messages=messages,
         db_path=resolved_path,
-    )
-
-
-def collect_with_stub(
-    *,
-    limit: int,
-    channel_override: str | None = None,
-    db_path: str | Path | None = None,
-    client: TelegramMessageClient | None = None,
-) -> CollectionOutcome:
-    """Persist deterministic messages using the configured channel."""
-    return _collect_messages(
-        limit=limit,
-        channel_override=channel_override,
-        db_path=db_path,
-        client=client,
-        require_auth=False,
-        client_factory=lambda _: DeterministicTelegramClient(),
-    )
-
-
-def collect_live(
-    *,
-    limit: int,
-    channel_override: str | None = None,
-    db_path: str | Path | None = None,
-    client: TelegramMessageClient | None = None,
-) -> CollectionOutcome:
-    """Persist messages using a live Telegram client."""
-    return _collect_messages(
-        limit=limit,
-        channel_override=channel_override,
-        db_path=db_path,
-        client=client,
-        require_auth=True,
-        client_factory=lambda config: TelethonTelegramClient(config),
     )
 
 

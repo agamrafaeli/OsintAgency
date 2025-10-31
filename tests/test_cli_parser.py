@@ -7,7 +7,10 @@ from osintagency.cli import (
     cleanup_database_command,
     fetch_channel_command,
 )
-from osintagency.collector import DeterministicTelegramClient
+from osintagency.collector import (
+    DeterministicTelegramClient,
+    TelethonTelegramClient,
+)
 
 
 def test_fetch_channel_command_uses_defaults(monkeypatch):
@@ -16,7 +19,12 @@ def test_fetch_channel_command_uses_defaults(monkeypatch):
     def fake_action(**kwargs):
         captured.update(kwargs)
         return 0
-
+    monkeypatch.setenv("OSINTAGENCY_SKIP_DOTENV", "1")
+    monkeypatch.setenv("TELEGRAM_API_ID", "12345")
+    monkeypatch.setenv("TELEGRAM_API_HASH", "hash")
+    monkeypatch.setenv("TELEGRAM_TARGET_CHANNEL", "@default")
+    monkeypatch.setenv("TELEGRAM_SESSION_STRING", "session")
+    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
     monkeypatch.setattr(
         "osintagency.cli.commands.fetch_channel.fetch_channel_action", fake_action
     )
@@ -25,19 +33,17 @@ def test_fetch_channel_command_uses_defaults(monkeypatch):
 
     assert result.exit_code == 0
     assert captured["limit"] == 5
-    assert captured["channel"] is None
+    assert captured["channel_id"] is None
     assert captured["db_path"] is None
     assert captured["log_level"] == "WARNING"
-    assert captured["use_stub"] is False
+    assert isinstance(captured["telegram_client"], TelethonTelegramClient)
     assert set(captured.keys()) == {
         "limit",
-        "channel",
+        "channel_id",
         "db_path",
         "log_level",
-        "use_stub",
         "telegram_client",
     }
-    assert captured["telegram_client"] is None
 
 
 def test_fetch_channel_command_handles_overrides(monkeypatch):
@@ -46,7 +52,12 @@ def test_fetch_channel_command_handles_overrides(monkeypatch):
     def fake_action(**kwargs):
         captured.update(kwargs)
         return 0
-
+    monkeypatch.setenv("OSINTAGENCY_SKIP_DOTENV", "1")
+    monkeypatch.setenv("TELEGRAM_API_ID", "12345")
+    monkeypatch.setenv("TELEGRAM_API_HASH", "hash")
+    monkeypatch.setenv("TELEGRAM_TARGET_CHANNEL", "@default")
+    monkeypatch.setenv("TELEGRAM_SESSION_STRING", "session")
+    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
     monkeypatch.setattr(
         "osintagency.cli.commands.fetch_channel.fetch_channel_action", fake_action
     )
@@ -58,7 +69,7 @@ def test_fetch_channel_command_handles_overrides(monkeypatch):
         [
             "--limit",
             "10",
-            "--channel",
+            "--channel-id",
             "@other",
             "--db-path",
             "/tmp/messages.sqlite3",
@@ -71,16 +82,15 @@ def test_fetch_channel_command_handles_overrides(monkeypatch):
 
     assert result.exit_code == 0
     assert captured["limit"] == 10
-    assert captured["channel"] == "@other"
+    assert captured["channel_id"] == "@other"
     assert captured["db_path"] == "/tmp/messages.sqlite3"
     assert captured["log_level"] == "info"
-    assert captured["use_stub"] is True
+    assert isinstance(captured["telegram_client"], DeterministicTelegramClient)
     assert set(captured.keys()) == {
         "limit",
-        "channel",
+        "channel_id",
         "db_path",
         "log_level",
-        "use_stub",
         "telegram_client",
     }
     assert captured["telegram_client"] is telegram_client

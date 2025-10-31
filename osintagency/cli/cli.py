@@ -19,7 +19,7 @@ from .decorators import osintagency_cli_command
     help="Number of recent posts to retrieve.",
 )
 @click.option(
-    "--channel",
+    "--channel-id",
     help="Override the target channel id or username defined in the environment.",
 )
 @click.option(
@@ -42,7 +42,7 @@ from .decorators import osintagency_cli_command
 def fetch_channel_command(
     ctx: click.Context,
     limit: int,
-    channel: str | None,
+    channel_id: str | None,
     db_path: str | None,
     log_level: str,
     use_stub: bool,
@@ -53,7 +53,7 @@ def fetch_channel_command(
         telegram_client = ctx.obj.get("telegram_client")
     exit_code = fetch_channel_module.fetch_channel_command(
         limit=limit,
-        channel=channel,
+        channel_id=channel_id,
         db_path=db_path,
         log_level=log_level,
         use_stub=use_stub,
