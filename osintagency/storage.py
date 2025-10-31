@@ -14,13 +14,6 @@ from .schema import StoredMessage, database_proxy
 DEFAULT_DB_FILENAME = "messages.sqlite3"
 _current_db_path: Path | None = None
 
-def resolve_db_path(
-    override: str | os.PathLike[str] | None = None,
-) -> Path:
-    """Public helper to resolve the active Sqlite database path."""
-    return _resolve_db_path(override)
-
-
 def persist_messages(
     channel_id: str,
     messages: Iterable[Mapping[str, object]],
@@ -28,7 +21,7 @@ def persist_messages(
     db_path: str | os.PathLike[str] | None = None,
 ) -> int:
     """Upsert message records into the raw message store."""
-    target_path = _resolve_db_path(db_path)
+    target_path = resolve_db_path(db_path)
     target_path.parent.mkdir(parents=True, exist_ok=True)
 
     message_buffer: list[MutableMapping[str, object]] = [
@@ -75,7 +68,7 @@ def fetch_messages(
     db_path: str | os.PathLike[str] | None = None,
 ) -> list[dict[str, object]]:
     """Return stored messages ordered by message id for verification and analytics."""
-    target_path = _resolve_db_path(db_path)
+    target_path = resolve_db_path(db_path)
     database = _initialize_database(target_path)
     with database.connection_context():
         _ensure_schema()
@@ -122,7 +115,7 @@ def _normalize_message(message: Mapping[str, object]) -> MutableMapping[str, obj
     return normalized
 
 
-def _resolve_db_path(
+def resolve_db_path(
     override: str | os.PathLike[str] | None,
 ) -> Path:
     if override is not None:

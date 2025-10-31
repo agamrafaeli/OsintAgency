@@ -6,7 +6,7 @@ from io import StringIO
 import pytest
 
 from osintagency import storage
-from osintagency.cli import OsintAgencyCLI
+from osintagency.cli import main
 
 
 @pytest.fixture(autouse=True)
@@ -23,9 +23,8 @@ def test_fetch_channel_method_uses_provided_stream(tmp_path, monkeypatch):
     db_path = tmp_path / "collector" / "messages.sqlite3"
     monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(db_path))
     stdout = StringIO()
-    cli = OsintAgencyCLI(stdout=stdout)
 
-    exit_code = cli.fetch_channel(["--limit", "2"])
+    exit_code = main(["fetch-channel", "--limit", "2"], stdout=stdout)
 
     assert exit_code == 0
     assert db_path.exists()
@@ -45,9 +44,8 @@ def test_check_credentials_method_success(tmp_path, monkeypatch):
     monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "token")
     stdout = StringIO()
     stderr = StringIO()
-    cli = OsintAgencyCLI(stdout=stdout, stderr=stderr)
 
-    exit_code = cli.check_credentials([])
+    exit_code = main(["check-credentials"], stdout=stdout, stderr=stderr)
 
     assert exit_code == 0
     assert "Credential check succeeded." in stdout.getvalue()
@@ -59,9 +57,12 @@ def test_check_credentials_generate_session_requires_telethon(tmp_path, monkeypa
     monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(db_path))
     stdout = StringIO()
     stderr = StringIO()
-    cli = OsintAgencyCLI(stdout=stdout, stderr=stderr)
 
-    exit_code = cli.check_credentials(["--generate-session"])
+    exit_code = main(
+        ["check-credentials", "--generate-session"],
+        stdout=stdout,
+        stderr=stderr,
+    )
 
     assert exit_code == 1
     assert "Telethon must be installed" in stderr.getvalue()

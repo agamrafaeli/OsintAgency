@@ -93,52 +93,6 @@ def check_credentials_command(
         )
 
 
-def _normalize_args(argv: Sequence[str] | None) -> list[str]:
-    if argv is None:
-        return sys.argv[1:]
-    return list(argv)
-
-
-class OsintAgencyCLI:
-    """Facade over individual CLI commands to enable reuse and testing."""
-
-    def __init__(self, *, stdout=None, stderr=None) -> None:
-        self._stdout = stdout or sys.stdout
-        self._stderr = stderr or sys.stderr
-
-    def fetch_channel(self, argv: Sequence[str] | None = None) -> int:
-        """Persist deterministic messages or clean up the backing database."""
-        args = _normalize_args(argv)
-        try:
-            return fetch_channel_command.main(
-                args=args,
-                prog_name="fetch_channel",
-                standalone_mode=False,
-                obj={"stdout": self._stdout, "stderr": self._stderr},
-            )
-        except click.ClickException as err:  # pragma: no cover - defensive
-            err.show(file=self._stderr)
-            return err.exit_code
-        except SystemExit as err:  # pragma: no cover - defensive
-            return err.code if isinstance(err.code, int) else 1
-
-    def check_credentials(self, argv: Sequence[str] | None = None) -> int:
-        """Validate environment configuration for Telegram access."""
-        args = _normalize_args(argv)
-        try:
-            return check_credentials_command.main(
-                args=args,
-                prog_name="check_credentials",
-                standalone_mode=False,
-                obj={"stdout": self._stdout, "stderr": self._stderr},
-            )
-        except click.ClickException as err:  # pragma: no cover - defensive
-            err.show(file=self._stderr)
-            return err.exit_code
-        except SystemExit as err:  # pragma: no cover - defensive
-            return err.code if isinstance(err.code, int) else 1
-
-
 @click.group()
 def cli() -> None:
     """OSINT Agency command collection."""
@@ -146,6 +100,33 @@ def cli() -> None:
 
 cli.add_command(fetch_channel_command)
 cli.add_command(check_credentials_command)
+
+
+def main(
+    argv: Sequence[str] | None = None,
+    *,
+    stdout=None,
+    stderr=None,
+    prog_name: str = "osintagency",
+) -> int:
+    """Invoke the OSINT Agency CLI with optional stream overrides."""
+    args = list(argv) if argv is not None else None
+    io_context = {
+        "stdout": stdout or sys.stdout,
+        "stderr": stderr or sys.stderr,
+    }
+    try:
+        return cli.main(
+            args=args,
+            prog_name=prog_name,
+            standalone_mode=False,
+            obj=io_context,
+        )
+    except click.ClickException as err:  # pragma: no cover - defensive
+        err.show(file=io_context["stderr"])
+        return err.exit_code
+    except SystemExit as err:  # pragma: no cover - defensive
+        return err.code if isinstance(err.code, int) else 1
 
 
 if __name__ == "__main__":  # pragma: no cover - module entry point

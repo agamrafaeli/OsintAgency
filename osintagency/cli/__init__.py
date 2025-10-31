@@ -1,13 +1,10 @@
-"""CLI utilities exposed for scripts and tests."""
+"""CLI utilities exposed."""
 
-from .cli import (
-    OsintAgencyCLI,
-    check_credentials_command,
-    fetch_channel_command,
-)
+from .cli import check_credentials_command, cli, fetch_channel_command, main
 
 __all__ = [
-    "OsintAgencyCLI",
     "check_credentials_command",
+    "cli",
     "fetch_channel_command",
+    "main",
 ]

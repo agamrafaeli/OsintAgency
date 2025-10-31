@@ -34,4 +34,4 @@ This guide clarifies when to exercise the test suite and how to keep the shared 
 
 - When introducing a new feature or bug fix, add or update tests in the same commit so the change set documents its coverage.
 - If the suite becomes slow, mark intentionally long-running tests with `@pytest.mark.slow` and add a `pytest.ini` marker definition so they can be isolated (`pytest -m "not slow"`).
-- Capture regressions by converting manual debugging scripts into repeatable tests whenever feasible.
+- Capture regressions by converting manual debugging actions into repeatable tests whenever feasible.

@@ -1,4 +1,4 @@
-"""Deterministic Telegram collector stub for local development."""
+"""Deterministic Telegram collector for local development."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ class CollectionOutcome:
     db_path: Path
 
 
-class DeterministicTelegramStub:
+class DeterministicTelegramClient:
     """Generate predictable Telegram-like messages without network access."""
 
     def __init__(self) -> None:
@@ -51,8 +51,8 @@ def collect_with_stub(
     config = load_telegram_config(require_auth=False)
     channel_id = channel_override or config.target_channel
     resolved_path = resolve_db_path(db_path)
-    stub = DeterministicTelegramStub()
-    messages = stub.fetch_messages(channel_id, limit)
+    client = DeterministicTelegramClient()
+    messages = client.fetch_messages(channel_id, limit)
     stored = persist_messages(channel_id, messages, db_path=resolved_path)
     return CollectionOutcome(
         channel_id=channel_id,

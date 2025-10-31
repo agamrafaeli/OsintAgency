@@ -11,7 +11,7 @@
 ## Storage and Display Flow
 ```
       +--------------+      +------------------+      +---------------------------+
-      | Telegram API | ---> | Fetcher Scripts  | ---> | Peewee ORM (SQLite store) |
+      | Telegram API | ---> | Fetcher Commands  | ---> | Peewee ORM (SQLite store) |
       +--------------+      +------------------+      +---------------------------+
                                       |                        |
                                       v                        v
@@ -24,7 +24,7 @@
                                            | Static Metrics Dashboard UI |
                                            +-----------------------------+
 ```
-Posts flow from the Telegram API into the fetcher scripts, which upsert them into the Peewee-managed SQLite store keyed by channel and message identifiers.
+Posts flow from the Telegram API into the fetcher commands, which upsert them into the Peewee-managed SQLite store keyed by channel and message identifiers.
 The summarization routine runs after ingestion to scan stored posts, calculate aggregates, and emit a JSON snapshot ready for display.
 The dashboard loads the latest JSON snapshot on page render, so UI refreshes stay decoupled from data collection schedules.
 

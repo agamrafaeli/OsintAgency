@@ -13,27 +13,21 @@ If not, then offer your best understanding of what the step should be. And itera
 
 # Execution guidelines for agents reading from this file
 When planning / executing a step from this plan:
-- Each sub-step should have a clear defined test that is added
+- If a test is not well defined (step name in three words + descritpion in two sentences + test if needed) then first re-word it in `AGENTS_PLAN.md` and only then proceed.
 - When developing use TDD, meaning write a test, make sure it fails, then add code and make sure the tests pass.
 - Test file names must NOT contain "step" references (e.g., avoid `test_step_01_foo.py`). Tests should be named descriptively based on what they test, agnostic of when they were written or which plan step they fulfill.
 
 
 ## Current Steps to run
 
-- Check if we need to remove OsintAgencyCLI
-
-- Rename DeterministicTelegramStub to be agnostic to the fact that it is used as dependency injection for tests
+- Reuse DeterministicTelegramClient for dependency injection for tests. Make sure tests run the specific CLI command, and remove the `main()` from `cli.py`. This is so that tests are in pure python and don't use `shell` to run themselves. Also, remove the wrapping of `stdout` and `stderr` for the CLI commands.
 End-to-end test: no need.
-
-- Use some main click config so that _normalize_args is not mixed with business logic
-
-- resolve_db_path should be just one method in `storage.py`, not public and private
 
 - Use centralized logger instead of `print`. Add `AGENTS_LOGGING.md` file in `agents/` framework
 
 - Compute Aggregate Summaries
   Implement a lightweight analysis routine that reads stored posts and tallies counts by channel and keyword. Expose the summary as a JSON artifact consumable by downstream interfaces.
-  End-to-end test: Running `python scripts/summarize_posts.py` produces aggregate counts for sample data.
+  End-to-end test: Running ClI command that performs just the analysis routine on the existing data produces aggregate counts for sample data.
 
 - Render Metric Dashboard
   Build a static dashboard that surfaces total posts and top Quran references from the generated JSON summary. Ensure the view remains lightweight and only depends on the summary artifact for data.
