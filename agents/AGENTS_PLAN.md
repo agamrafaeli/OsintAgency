@@ -20,13 +20,14 @@ When planning / executing a step from this plan:
 
 ## Current Steps to run
 
-1. Acquire Access Credentials
-Secure Telegram API credentials (bot token or user session) and document how to place them in a local env file. Ensure `.env.example` points to the required keys so new developers can run the prototype instantly.
-End-to-end test: Running a credential smoke script prints the configured channel id without errors.
+1. Agentify tests
+Add `agents/AGENT_TESTING.md` that explains when to run tests, and how to manage the test folder
+End-to-end test: running all tests for the repo
 
-2. Prototype Channel Fetcher
-Write a single script that downloads the latest posts from one target channel using the credentials. Hard-code minimal fields (id, timestamp, text) and log them to stdout for quick inspection.
-End-to-end test: Executing `python scripts/fetch_channel.py --limit 5` returns posts without exceptions.
+2. Sharpen Getting Started Section
+Make this section crystal clear and bullet proof for new users.
+End-to-end test: N/A
+ 
 
 3. Store Raw Messages
 Persist the fetched posts into a lightweight local store such as SQLite with a schema matching the architecture doc. Re-run the fetcher to upsert posts and confirm duplicates are skipped.
