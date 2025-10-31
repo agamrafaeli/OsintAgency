@@ -5,6 +5,7 @@ from __future__ import annotations
 import click
 
 from .commands import cleanup_database as cleanup_database_module
+from .commands import fetch_channel as fetch_channel_module
 from .decorators import osintagency_cli_command
 
 
@@ -35,6 +36,64 @@ def cleanup_command(
     exit_code = cleanup_database_module.cleanup_database_command(
         db_path=db_path,
         log_level=log_level,
+    )
+    ctx.exit(exit_code)
+
+
+@setup_group.command(name="fetch-channel")
+@click.argument("channel_id")
+@click.option(
+    "--limit",
+    type=int,
+    default=5,
+    show_default=True,
+    help="Number of recent posts to retrieve.",
+)
+@click.option(
+    "--db-path",
+    help="Explicit database path override. Falls back to OSINTAGENCY_DB_PATH when omitted.",
+)
+@click.option(
+    "--log-level",
+    default="WARNING",
+    show_default=True,
+    help="Python logging level.",
+)
+@click.option(
+    "--use-stub",
+    is_flag=True,
+    help="Use the deterministic stub collector instead of live Telegram data.",
+)
+@click.option(
+    "--days",
+    type=int,
+    default=30,
+    show_default=True,
+    help="Fetch only messages from the last N days.",
+)
+@click.pass_context
+@osintagency_cli_command(log_level_param="log_level")
+def fetch_channel_command(
+    ctx: click.Context,
+    channel_id: str,
+    limit: int,
+    db_path: str | None,
+    log_level: str,
+    use_stub: bool,
+    days: int,
+) -> None:
+    """Fetch Telegram messages for a specified channel."""
+    telegram_client = None
+    if ctx.obj:
+        telegram_client = ctx.obj.get("telegram_client")
+    exit_code = fetch_channel_module.fetch_channel_command(
+        limit=limit,
+        channel_id=channel_id,
+        db_path=db_path,
+        log_level=log_level,
+        use_stub=use_stub,
+        telegram_client=telegram_client,
+        days=days,
     )
     ctx.exit(exit_code)
 

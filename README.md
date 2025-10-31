@@ -11,14 +11,40 @@ The repository is under active build-out. Follow the plans in `agents/AGENTS_PLA
 1. Copy `.env.example` to `.env` and fill in the Telegram API credentials. Provide either a user session string or a bot token along with the target channel identifier.
 2. Create a virtual environment and install dependencies: `python -m venv .venv && source .venv/bin/activate && pip install -e .`.
 3. Validate the environment with `osintagency check-credentials --generate-session`; this confirms the configured channel, ensures the database path is writable, and can optionally sign in once to print a `TELEGRAM_SESSION_STRING`.
-4. Manage channel subscriptions:
-   - Add: `osintagency subscribe add --channel-id @example_channel --name "Example Channel"`
-   - List: `osintagency subscribe list` (use `--format json` for JSON output)
-   - Update: `osintagency subscribe update --channel-id @example_channel --name "New Name"`
-   - Remove: `osintagency subscribe remove --channel-id @example_channel`
-   - Fetch all: `osintagency subscribe fetch --limit 5` to fetch messages from all active subscribed channels
-   - Fetch with date filtering: `osintagency subscribe fetch --limit 100 --days 7` to fetch only messages from the last 7 days
-5. Prototype data collection from a single channel via `osintagency fetch-channel --limit 5` to pull the latest posts into the local store. Add `--use-stub` to emit a deterministic batch when validating persistence. Reset the message store anytime with `osintagency setup cleanup`.
+4. Manage channel subscriptions with the `subscribe` command suite:
+   ```bash
+   # Add a channel to the subscription directory
+   osintagency subscribe add --channel-id @example_channel --name "Example Channel"
+
+   # List all tracked channels (pass --format json for machine-readable output)
+   osintagency subscribe list
+
+   # Update saved metadata when a channel needs a new display name
+   osintagency subscribe update --channel-id @example_channel --name "New Name"
+
+   # Remove the subscription once monitoring is complete
+   osintagency subscribe remove --channel-id @example_channel
+
+   # Fetch a small batch from every active subscription
+   osintagency subscribe fetch --limit 5
+
+   # Fetch a larger batch but only from the last week of activity
+   osintagency subscribe fetch --limit 100 --days 7
+   ```
+5. Prototype channel backfills with targeted fetch commands before touching production data:
+   ```bash
+   # Fetch the most recent five posts from the default channel using live credentials
+   osintagency fetch-channel --limit 5
+
+   # Emit a deterministic dataset by using the stub collector
+   osintagency fetch-channel --limit 5 --use-stub
+
+   # Backfill a specific channel for the prior week without affecting other data
+   osintagency setup fetch-channel @example_channel --days 7
+
+   # Reset the message store when you need a clean slate
+   osintagency setup cleanup
+   ```
 
 ## Data Storage
 

@@ -3,7 +3,10 @@ from __future__ import annotations
 from click.testing import CliRunner
 
 from osintagency.cli import check_credentials_command, fetch_channel_command
-from osintagency.cli.setup_commands import cleanup_command
+from osintagency.cli.setup_commands import (
+    cleanup_command,
+    fetch_channel_command as setup_fetch_channel_command,
+)
 from osintagency.collector import (
     DeterministicTelegramClient,
     TelethonTelegramClient,
@@ -138,6 +141,92 @@ def test_setup_cleanup_command_handles_overrides(monkeypatch):
     assert captured["db_path"] == "/tmp/messages.sqlite3"
     assert captured["log_level"] == "info"
     assert set(captured.keys()) == {"db_path", "log_level"}
+
+
+def test_setup_fetch_channel_command_uses_defaults(monkeypatch):
+    captured: dict[str, object] = {}
+
+    def fake_action(**kwargs):
+        captured.update(kwargs)
+        return 0
+
+    monkeypatch.setattr(
+        "osintagency.cli.setup_commands.fetch_channel_module.fetch_channel_command",
+        fake_action,
+    )
+    runner = CliRunner()
+    result = runner.invoke(
+        setup_fetch_channel_command,
+        ["@demo"],
+    )
+
+    assert result.exit_code == 0
+    assert captured["limit"] == 5
+    assert captured["channel_id"] == "@demo"
+    assert captured["db_path"] is None
+    assert captured["log_level"] == "WARNING"
+    assert captured["use_stub"] is False
+    assert captured["days"] == 30
+    assert captured["telegram_client"] is None
+    assert set(captured.keys()) == {
+        "limit",
+        "channel_id",
+        "db_path",
+        "log_level",
+        "use_stub",
+        "telegram_client",
+        "days",
+    }
+
+
+def test_setup_fetch_channel_command_handles_overrides(monkeypatch):
+    captured: dict[str, object] = {}
+
+    def fake_action(**kwargs):
+        captured.update(kwargs)
+        return 7
+
+    monkeypatch.setattr(
+        "osintagency.cli.setup_commands.fetch_channel_module.fetch_channel_command",
+        fake_action,
+    )
+    runner = CliRunner()
+    telegram_client = DeterministicTelegramClient()
+
+    result = runner.invoke(
+        setup_fetch_channel_command,
+        [
+            "@other",
+            "--limit",
+            "12",
+            "--db-path",
+            "/tmp/messages.sqlite3",
+            "--log-level",
+            "info",
+            "--use-stub",
+            "--days",
+            "10",
+        ],
+        obj={"telegram_client": telegram_client},
+    )
+
+    assert result.exit_code == 7
+    assert captured["limit"] == 12
+    assert captured["channel_id"] == "@other"
+    assert captured["db_path"] == "/tmp/messages.sqlite3"
+    assert captured["log_level"] == "info"
+    assert captured["use_stub"] is True
+    assert captured["days"] == 10
+    assert captured["telegram_client"] is telegram_client
+    assert set(captured.keys()) == {
+        "limit",
+        "channel_id",
+        "db_path",
+        "log_level",
+        "use_stub",
+        "telegram_client",
+        "days",
+    }
 
 
 def test_check_credentials_command_uses_defaults(monkeypatch):

@@ -22,13 +22,6 @@ When planning / executing a step from this plan:
 ## Planned Steps
 
 
-- Setup Cleanup Subcommand
-  Create a setup command group with a cleanup subcommand that clears the database. This establishes the CLI structure for future setup operations and provides a convenient way to reset the database state.
-  End-to-end test: Running `osintagency setup cleanup` successfully deletes the database file.
-
-- Setup Fetch-Channel Subcommand
-  Add a fetch-channel subcommand under setup that fetches messages from a specified channel with configurable date limits (--days parameter, default 30). This allows targeted data collection for specific channels during development.
-  End-to-end test: Running `osintagency setup fetch-channel <id> --days 7` fetches only messages from the last 7 days for that channel.
 
 - Setup Fetch-All Subcommand
   Add a fetch-all subcommand under setup that fetches messages from all active subscriptions with configurable date limits. This enables efficient bulk data collection for testing the full pipeline.
