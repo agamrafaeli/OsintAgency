@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-import io
 import json
 
+from click.testing import CliRunner
 import pytest
 
 from osintagency import storage
-from osintagency.collector import collect_with_stub
-from osintagency.cli import main
+from osintagency.collector import (
+    DeterministicTelegramClient,
+    collect_with_stub,
+)
+from osintagency.cli import cli
 
 
 @pytest.fixture(autouse=True)
@@ -23,21 +26,30 @@ def configure_environment(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_main_collects_messages(tmp_path, monkeypatch: pytest.MonkeyPatch):
     db_path = tmp_path / "collector" / "messages.sqlite3"
     monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(db_path))
-    stdout = io.StringIO()
+    runner = CliRunner()
+    telegram_client = DeterministicTelegramClient()
 
-    exit_code = main(["fetch-channel", "--limit", "3"], stdout=stdout)
+    result = runner.invoke(
+        cli,
+        ["fetch-channel", "--limit", "3"],
+        obj={"telegram_client": telegram_client},
+    )
 
-    assert exit_code == 0
+    assert result.exit_code == 0
     assert db_path.exists()
     rows = storage.fetch_messages("@script", db_path=db_path)
     assert len(rows) == 3
 
     payloads = [
         json.loads(line)
-        for line in stdout.getvalue().strip().splitlines()
+        for line in result.output.strip().splitlines()
         if line.strip()
     ]
-    assert [message["id"] for message in payloads] == [1, 2, 3]
+    expected_ids = [
+        message["id"]
+        for message in telegram_client.fetch_messages("@script", limit=3)
+    ]
+    assert [message["id"] for message in payloads] == expected_ids
 
 
 def test_main_cleanup_removes_database(tmp_path, monkeypatch: pytest.MonkeyPatch):
@@ -46,10 +58,11 @@ def test_main_cleanup_removes_database(tmp_path, monkeypatch: pytest.MonkeyPatch
     collect_with_stub(limit=1, db_path=db_path, channel_override="@script")
     assert db_path.exists()
 
-    exit_code = main(
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
         ["fetch-channel", "--cleanup", "--db-path", str(db_path)],
-        stdout=io.StringIO(),
     )
 
-    assert exit_code == 0
+    assert result.exit_code == 0
     assert not db_path.exists()

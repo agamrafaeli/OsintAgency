@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import List
+from typing import List, Protocol
 
 from .config import load_telegram_config
 from .storage import persist_messages, resolve_db_path
@@ -19,6 +19,13 @@ class CollectionOutcome:
     stored_messages: int
     messages: List[dict[str, object]]
     db_path: Path
+
+
+class TelegramMessageClient(Protocol):
+    """Protocol for deterministic Telegram-like clients."""
+
+    def fetch_messages(self, channel_id: str, limit: int) -> List[dict[str, object]]:
+        """Return deterministic message payloads."""
 
 
 class DeterministicTelegramClient:
@@ -46,13 +53,14 @@ def collect_with_stub(
     limit: int,
     channel_override: str | None = None,
     db_path: str | Path | None = None,
+    client: TelegramMessageClient | None = None,
 ) -> CollectionOutcome:
     """Persist deterministic messages using the configured channel."""
     config = load_telegram_config(require_auth=False)
     channel_id = channel_override or config.target_channel
     resolved_path = resolve_db_path(db_path)
-    client = DeterministicTelegramClient()
-    messages = client.fetch_messages(channel_id, limit)
+    telegram_client = client or DeterministicTelegramClient()
+    messages = telegram_client.fetch_messages(channel_id, limit)
     stored = persist_messages(channel_id, messages, db_path=resolved_path)
     return CollectionOutcome(
         channel_id=channel_id,

@@ -6,7 +6,11 @@ import json
 import logging
 import os
 
-from ..collector import collect_with_stub, purge_database_file
+from ..collector import (
+    TelegramMessageClient,
+    collect_with_stub,
+    purge_database_file,
+)
 from ..storage import resolve_db_path
 
 logger = logging.getLogger(__name__)
@@ -19,6 +23,7 @@ def fetch_channel_action(
     db_path: str | os.PathLike[str] | None,
     cleanup: bool,
     log_level: str,
+    telegram_client: TelegramMessageClient | None = None,
 ) -> int:
     """Persist deterministic messages or clean up the backing database."""
     logging.basicConfig(level=getattr(logging, log_level.upper(), logging.WARNING))
@@ -37,6 +42,7 @@ def fetch_channel_action(
             limit=limit,
             channel_override=channel,
             db_path=db_path,
+            client=telegram_client,
         )
     except Exception:  # noqa: BLE001 - surfaced to the console for debugging
         logger.exception("Deterministic collection failed.")

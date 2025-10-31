@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import io
-
 from click.testing import CliRunner
 
 from osintagency.cli import check_credentials_command, fetch_channel_command
+from osintagency.collector import DeterministicTelegramClient
 
 
 def test_fetch_channel_command_uses_defaults(monkeypatch):
@@ -18,13 +17,7 @@ def test_fetch_channel_command_uses_defaults(monkeypatch):
         "osintagency.cli.commands.fetch_channel.fetch_channel_action", fake_action
     )
     runner = CliRunner()
-    stdout = io.StringIO()
-    stderr = io.StringIO()
-
-    result = runner.invoke(
-        fetch_channel_command,
-        obj={"stdout": stdout, "stderr": stderr},
-    )
+    result = runner.invoke(fetch_channel_command)
 
     assert result.exit_code == 0
     assert captured["limit"] == 5
@@ -38,7 +31,9 @@ def test_fetch_channel_command_uses_defaults(monkeypatch):
         "db_path",
         "log_level",
         "cleanup",
+        "telegram_client",
     }
+    assert captured["telegram_client"] is None
 
 
 def test_fetch_channel_command_handles_overrides(monkeypatch):
@@ -52,8 +47,7 @@ def test_fetch_channel_command_handles_overrides(monkeypatch):
         "osintagency.cli.commands.fetch_channel.fetch_channel_action", fake_action
     )
     runner = CliRunner()
-    stdout = io.StringIO()
-    stderr = io.StringIO()
+    telegram_client = DeterministicTelegramClient()
 
     result = runner.invoke(
         fetch_channel_command,
@@ -68,7 +62,7 @@ def test_fetch_channel_command_handles_overrides(monkeypatch):
             "info",
             "--cleanup",
         ],
-        obj={"stdout": stdout, "stderr": stderr},
+        obj={"telegram_client": telegram_client},
     )
 
     assert result.exit_code == 0
@@ -83,7 +77,9 @@ def test_fetch_channel_command_handles_overrides(monkeypatch):
         "db_path",
         "log_level",
         "cleanup",
+        "telegram_client",
     }
+    assert captured["telegram_client"] is telegram_client
 
 
 def test_check_credentials_command_uses_defaults(monkeypatch):
@@ -98,13 +94,7 @@ def test_check_credentials_command_uses_defaults(monkeypatch):
         fake_action,
     )
     runner = CliRunner()
-    stdout = io.StringIO()
-    stderr = io.StringIO()
-
-    result = runner.invoke(
-        check_credentials_command,
-        obj={"stdout": stdout, "stderr": stderr},
-    )
+    result = runner.invoke(check_credentials_command)
 
     assert result.exit_code == 0
     assert captured["refresh_env"] is False
@@ -124,13 +114,9 @@ def test_check_credentials_command_handles_flags(monkeypatch):
         fake_action,
     )
     runner = CliRunner()
-    stdout = io.StringIO()
-    stderr = io.StringIO()
-
     result = runner.invoke(
         check_credentials_command,
         ["--refresh-env", "--generate-session"],
-        obj={"stdout": stdout, "stderr": stderr},
     )
 
     assert result.exit_code == 0

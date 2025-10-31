@@ -16,7 +16,7 @@ When planning / executing a step from this plan:
 - If a test is not well defined (step name in three words + descritpion in two sentences + test if needed) then first re-word it in `AGENTS_PLAN.md` and only then proceed.
 - When developing use TDD, meaning write a test, make sure it fails, then add code and make sure the tests pass.
 - Test file names must NOT contain "step" references (e.g., avoid `test_step_01_foo.py`). Tests should be named descriptively based on what they test, agnostic of when they were written or which plan step they fulfill.
-
+- Unless specifically asked, only do one step at a time. 
 
 ## Current Steps to run
 
