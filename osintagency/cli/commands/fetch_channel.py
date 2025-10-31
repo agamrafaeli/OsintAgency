@@ -12,7 +12,6 @@ def fetch_channel_command(
     channel: str | None,
     db_path: str | None,
     log_level: str,
-    cleanup: bool,
     use_stub: bool,
     telegram_client: TelegramMessageClient | None = None,
 ) -> int:
@@ -21,7 +20,6 @@ def fetch_channel_command(
         limit=limit,
         channel=channel,
         db_path=db_path,
-        cleanup=cleanup,
         log_level=log_level,
         use_stub=use_stub,
         telegram_client=telegram_client,

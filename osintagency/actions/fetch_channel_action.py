@@ -6,14 +6,8 @@ import json
 import os
 
 from ..config import ConfigurationError
-from ..collector import (
-    TelegramMessageClient,
-    collect_live,
-    collect_with_stub,
-    purge_database_file,
-)
+from ..collector import TelegramMessageClient, collect_live, collect_with_stub
 from ..logging_config import configure_logging, get_console_logger, get_logger
-from ..storage import resolve_db_path
 
 logger = get_logger(__name__)
 
@@ -23,23 +17,13 @@ def fetch_channel_action(
     limit: int,
     channel: str | None,
     db_path: str | os.PathLike[str] | None,
-    cleanup: bool,
     log_level: str,
     use_stub: bool,
     telegram_client: TelegramMessageClient | None = None,
 ) -> int:
-    """Persist Telegram messages or clean up the backing database."""
+    """Persist Telegram messages from Telegram into storage."""
     configure_logging(log_level)
     console = get_console_logger()
-
-    if cleanup:
-        target = resolve_db_path(db_path)
-        removed = purge_database_file(db_path=target)
-        if removed:
-            logger.info("Removed database at %s", target)
-        else:
-            logger.info("No database found at %s", target)
-        return 0
 
     try:
         collector = collect_with_stub if use_stub else collect_live

@@ -26,6 +26,7 @@ Quick reference for how automation agents should interact with the **OsintAgency
 - Never perform git commands without approval from user.
 - Use `rg` for searches; avoid slow alternatives unless unavailable.
 - Keep comments purposeful—only add them when they clarify non-obvious logic.
+- Inside the project there are `AGENTS_XXX.md` files. They are your instructions for editing in that folder and recursively underneath it.
 
 ## When Work Completes
 

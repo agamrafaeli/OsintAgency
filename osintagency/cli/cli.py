@@ -5,6 +5,7 @@ from __future__ import annotations
 import click
 
 from .commands import check_credentials as check_credentials_module
+from .commands import cleanup_database as cleanup_database_module
 from .commands import fetch_channel as fetch_channel_module
 from .decorators import osintagency_cli_command
 
@@ -32,11 +33,6 @@ from .decorators import osintagency_cli_command
     help="Python logging level.",
 )
 @click.option(
-    "--cleanup",
-    is_flag=True,
-    help="Delete the configured message store instead of collecting messages.",
-)
-@click.option(
     "--use-stub",
     is_flag=True,
     help="Use the deterministic stub collector instead of live Telegram data.",
@@ -49,10 +45,9 @@ def fetch_channel_command(
     channel: str | None,
     db_path: str | None,
     log_level: str,
-    cleanup: bool,
     use_stub: bool,
 ) -> None:
-    """Persist Telegram messages or clean up the backing database."""
+    """Persist Telegram messages into the configured store."""
     telegram_client = None
     if ctx.obj:
         telegram_client = ctx.obj.get("telegram_client")
@@ -61,9 +56,34 @@ def fetch_channel_command(
         channel=channel,
         db_path=db_path,
         log_level=log_level,
-        cleanup=cleanup,
         use_stub=use_stub,
         telegram_client=telegram_client,
+    )
+    ctx.exit(exit_code)
+
+
+@click.command(name="cleanup-database")
+@click.option(
+    "--db-path",
+    help="Explicit database path override. Falls back to OSINTAGENCY_DB_PATH when omitted.",
+)
+@click.option(
+    "--log-level",
+    default="WARNING",
+    show_default=True,
+    help="Python logging level.",
+)
+@click.pass_context
+@osintagency_cli_command(log_level_param="log_level")
+def cleanup_database_command(
+    ctx: click.Context,
+    db_path: str | None,
+    log_level: str,
+) -> None:
+    """Delete the configured message store."""
+    exit_code = cleanup_database_module.cleanup_database_command(
+        db_path=db_path,
+        log_level=log_level,
     )
     ctx.exit(exit_code)
 
@@ -104,6 +124,7 @@ def cli() -> None:
 
 cli.add_command(fetch_channel_command)
 cli.add_command(check_credentials_command)
+cli.add_command(cleanup_database_command)
 
 
 if __name__ == "__main__":  # pragma: no cover - module entry point

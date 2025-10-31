@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from click.testing import CliRunner
 
-from osintagency.cli import check_credentials_command, fetch_channel_command
+from osintagency.cli import (
+    check_credentials_command,
+    cleanup_database_command,
+    fetch_channel_command,
+)
 from osintagency.collector import DeterministicTelegramClient
 
 
@@ -24,14 +28,12 @@ def test_fetch_channel_command_uses_defaults(monkeypatch):
     assert captured["channel"] is None
     assert captured["db_path"] is None
     assert captured["log_level"] == "WARNING"
-    assert captured["cleanup"] is False
     assert captured["use_stub"] is False
     assert set(captured.keys()) == {
         "limit",
         "channel",
         "db_path",
         "log_level",
-        "cleanup",
         "use_stub",
         "telegram_client",
     }
@@ -62,7 +64,6 @@ def test_fetch_channel_command_handles_overrides(monkeypatch):
             "/tmp/messages.sqlite3",
             "--log-level",
             "info",
-            "--cleanup",
             "--use-stub",
         ],
         obj={"telegram_client": telegram_client},
@@ -73,18 +74,59 @@ def test_fetch_channel_command_handles_overrides(monkeypatch):
     assert captured["channel"] == "@other"
     assert captured["db_path"] == "/tmp/messages.sqlite3"
     assert captured["log_level"] == "info"
-    assert captured["cleanup"] is True
     assert captured["use_stub"] is True
     assert set(captured.keys()) == {
         "limit",
         "channel",
         "db_path",
         "log_level",
-        "cleanup",
         "use_stub",
         "telegram_client",
     }
     assert captured["telegram_client"] is telegram_client
+
+
+def test_cleanup_database_command_uses_defaults(monkeypatch):
+    captured: dict[str, object] = {}
+
+    def fake_action(**kwargs):
+        captured.update(kwargs)
+        return 0
+
+    monkeypatch.setattr(
+        "osintagency.cli.commands.cleanup_database.cleanup_database_action",
+        fake_action,
+    )
+    runner = CliRunner()
+    result = runner.invoke(cleanup_database_command)
+
+    assert result.exit_code == 0
+    assert captured["db_path"] is None
+    assert captured["log_level"] == "WARNING"
+    assert set(captured.keys()) == {"db_path", "log_level"}
+
+
+def test_cleanup_database_command_handles_overrides(monkeypatch):
+    captured: dict[str, object] = {}
+
+    def fake_action(**kwargs):
+        captured.update(kwargs)
+        return 3
+
+    monkeypatch.setattr(
+        "osintagency.cli.commands.cleanup_database.cleanup_database_action",
+        fake_action,
+    )
+    runner = CliRunner()
+    result = runner.invoke(
+        cleanup_database_command,
+        ["--db-path", "/tmp/messages.sqlite3", "--log-level", "info"],
+    )
+
+    assert result.exit_code == 3
+    assert captured["db_path"] == "/tmp/messages.sqlite3"
+    assert captured["log_level"] == "info"
+    assert set(captured.keys()) == {"db_path", "log_level"}
 
 
 def test_check_credentials_command_uses_defaults(monkeypatch):
