@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import pytest
 
 from osintagency import storage
 from osintagency.collector import collect_with_stub
-from scripts import fetch_channel
+from osintagency.cli import OsintAgencyCLI
 
 
 @pytest.fixture(autouse=True)
@@ -24,10 +23,8 @@ def configure_environment(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_main_collects_messages(tmp_path, monkeypatch: pytest.MonkeyPatch, capsys):
     db_path = tmp_path / "collector" / "messages.sqlite3"
     monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(db_path))
-    argv = ["fetch_channel", "--limit", "3"]
-    monkeypatch.setattr(sys, "argv", argv)
-
-    exit_code = fetch_channel.main()
+    cli = OsintAgencyCLI()
+    exit_code = cli.fetch_channel(["--limit", "3"])
 
     assert exit_code == 0
     assert db_path.exists()
@@ -45,10 +42,8 @@ def test_main_cleanup_removes_database(tmp_path, monkeypatch: pytest.MonkeyPatch
     collect_with_stub(limit=1, db_path=db_path, channel_override="@script")
     assert db_path.exists()
 
-    argv = ["fetch_channel", "--cleanup", "--db-path", str(db_path)]
-    monkeypatch.setattr(sys, "argv", argv)
-
-    exit_code = fetch_channel.main()
+    cli = OsintAgencyCLI()
+    exit_code = cli.fetch_channel(["--cleanup", "--db-path", str(db_path)])
 
     assert exit_code == 0
     assert not db_path.exists()

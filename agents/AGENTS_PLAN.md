@@ -20,12 +20,12 @@ When planning / executing a step from this plan:
 
 ## Current Steps to run
 
-- Decouple CLI from "modules"
-modify `fetch_channel` and `check_credentials so that they are methods. Create `cli/` folder with `cli.py` and `parser.py` fo the CLI parsing logic. Modify tests, and create new ones.
-  End-to-end test: Running the full flow from cli as well as running all tests
+- Check if we need to remove OsintAgencyCLI
 
 - Rename DeterministicTelegramStub to be agnostic to the fact that it is used as dependency injection for tests
 End-to-end test: no need.
+
+- Use some main click config so that _normalize_args is not mixed with business logic
 
 - resolve_db_path should be just one method in `storage.py`, not public and private
 

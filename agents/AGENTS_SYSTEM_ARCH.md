@@ -1,7 +1,9 @@
 # Agents System Architecture
 
 ## Quick Map
-- **Data Acquisition**: `scripts/fetch_channel.py` streams raw posts (id, timestamp, text) for a configured channel using Telegram API credentials loaded from `.env`.
+- **CLI**: `osintagency/cli/cli.py` defines the Click entry points and forwards parsed options into `osintagency/cli/commands/`, keeping parsing concerns isolated from business code.
+- **Commands**: `osintagency/cli/commands/check_credentials.py` and `osintagency/cli/commands/fetch_channel.py` expose `*_command` functions that simply relay CLI arguments to the underlying action layer.
+- **Telegram Actions**: `osintagency/actions/check_credentials_action.py` and `osintagency/actions/fetch_channel_action.py` encapsulate credential validation and deterministic collection, relying on configuration helpers in `osintagency/config.py` and persistence routines in `osintagency/storage.py`.
 - **Raw Storage**: Messages are persisted to a local SQLite database via the Peewee ORM models in `osintagency.schema`, keyed by channel and message id to keep ingestion idempotent.
 - **Enrichment**: A summarization routine scans stored rows and emits per-channel and keyword aggregates as JSON snapshots.
 - **Display**: A static dashboard loads the latest JSON snapshot to present counts and highlight notable references.
