@@ -20,7 +20,17 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-- Add ability to manage "subscription" to channels by config. so that there are two new cli commands: subscribe (adding the channel to the current config) and fetch_subscribed_channels (which fetches messages from all channels)
+- Define Subscription Storage
+  Capture how channel subscriptions should be represented in the configuration file by writing a failing unit test first. Add the minimal persistence logic required to satisfy that contract.
+  End-to-end test: pytest tests/test_subscription_config.py
+
+- Introduce Subscribe Command
+  Describe the desired CLI behavior for adding subscriptions with a failing test that drives the implementation. Wire up the `subscribe` command and integration code until the contract is met.
+  End-to-end test: pytest tests/test_subscribe_cli.py
+
+- Implement Fetch Subscriptions
+  Specify the CLI flow for fetching all subscribed channels through a failing test suite before touching the code. Build the fetch workflow so the command processes every stored subscription successfully.
+  End-to-end test: pytest tests/test_fetch_subscribed_channels.py
 
 - Add ability to fetch large amounts (100k and up) of messages. First brainstorm approaches on how to do this, only then do it.
 
