@@ -11,6 +11,7 @@ Quick reference for how automation agents should interact with the **OsintAgency
 
 - `agents/AGENTS_PLAN.md`: Source of truth for the next tasks. Always read it before modifying code.
 - `agents/AGENTS_SYSTEM_ARCH.md`: Architecture sketch; update it when components or data flows change.
+- `agents/AGENTS_TESTING.md`: Instructions for how to interact with tests in this repo
 - `README.md`: External-facing description of the project. Refresh it after major user-facing updates.
 
 ## Workflow Rules

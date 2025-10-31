@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import Optional
+from typing import Dict, Optional
 
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 
 
 class ConfigurationError(RuntimeError):
@@ -48,21 +48,18 @@ def load_telegram_config(
     require_auth:
         When True (default) ensure either a session string or bot token is provided.
     """
-    if refresh_env or not os.getenv("TELEGRAM_API_ID"):
-        # Load .env only when first needed to avoid repeated disk work.
-        load_dotenv()
+    dotenv_map = _load_dotenv(refresh_env)
 
     try:
-        api_id_raw = _require("TELEGRAM_API_ID")
+        api_id_raw = _require("TELEGRAM_API_ID", dotenv_map)
         api_id = int(api_id_raw)
     except ValueError as err:
         raise ConfigurationError("TELEGRAM_API_ID must be an integer.") from err
+    api_hash = _require("TELEGRAM_API_HASH", dotenv_map)
+    target_channel = _require("TELEGRAM_TARGET_CHANNEL", dotenv_map)
 
-    api_hash = _require("TELEGRAM_API_HASH")
-    target_channel = _require("TELEGRAM_TARGET_CHANNEL")
-
-    session_string = os.getenv("TELEGRAM_SESSION_STRING")
-    bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+    session_string = _optional("TELEGRAM_SESSION_STRING", dotenv_map)
+    bot_token = _optional("TELEGRAM_BOT_TOKEN", dotenv_map)
 
     if require_auth and not session_string and not bot_token:
         raise ConfigurationError(
@@ -78,8 +75,31 @@ def load_telegram_config(
     )
 
 
-def _require(key: str) -> str:
+_DOTENV_CACHE: Dict[str, str] | None = None
+_SKIP_DOTENV_FLAG = "OSINTAGENCY_SKIP_DOTENV"
+
+
+def _load_dotenv(refresh: bool) -> Dict[str, str]:
+    global _DOTENV_CACHE
+    if refresh or _DOTENV_CACHE is None:
+        if os.getenv(_SKIP_DOTENV_FLAG):
+            _DOTENV_CACHE = {}
+        else:
+            _DOTENV_CACHE = {
+                k: v for k, v in dotenv_values().items() if v is not None
+            }
+    return _DOTENV_CACHE
+
+
+def _optional(key: str, dotenv_map: Dict[str, str]) -> Optional[str]:
     value = os.getenv(key)
+    if value is None or value.strip() == "":
+        value = dotenv_map.get(key)
+    return value
+
+
+def _require(key: str, dotenv_map: Dict[str, str]) -> str:
+    value = _optional(key, dotenv_map)
     if value is None or value.strip() == "":
         raise ConfigurationError(f"Missing required environment variable: {key}")
     return value
