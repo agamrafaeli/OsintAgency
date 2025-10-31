@@ -20,19 +20,15 @@ When planning / executing a step from this plan:
 
 ## Current Steps to run
 
-1. Build tech plan for storage and display
-Write a diagram and three sentences into `agents/AGENT_SYSTEM_ARCH.md` depicting how the storage and display components work. This step is mainly brainstorming between agent and human. 
-End-to-end test: N/A
-
-2. Store Raw Messages
+- Store Raw Messages
 Persist the fetched posts into a lightweight local store such as SQLite with a schema matching the architecture doc. Re-run the fetcher to upsert posts and confirm duplicates are skipped.
 End-to-end test: Invoking the fetcher twice leaves the stored message count unchanged except for new posts.
 
-3. Compute Aggregate Summaries
+- Compute Aggregate Summaries
 Add a tiny analysis routine that reads the stored posts and calculates counts by channel and keyword references. Emit the results as a JSON blob the UI can consume.
 End-to-end test: Running `python scripts/summarize_posts.py` outputs aggregate counts for sample data.
 
-4. Render Metric Dashboard
+- Render Metric Dashboard
 Build a bare-bones view that surfaces the aggregate metrics, focusing on total posts and top Quran references. Keep it static and depend only on the generated JSON summary.
 End-to-end test: Serving the dashboard locally shows counts that match the JSON summary.
 
