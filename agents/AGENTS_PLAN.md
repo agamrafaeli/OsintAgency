@@ -23,10 +23,6 @@ When planning / executing a step from this plan:
 
 ### Data Layer: Foundations (ROADMAP_ANALYSIS_PIPELINE.md Part 1)
 
-- Document Ephemeral Database
-  Add section to `AGENTS_SYSTEM_ARCH.md` explaining that storage assumes ephemeral mode with fresh database initialization on each run. This design choice means no migration infrastructure is needed, as schema changes apply to a clean slate.
-  End-to-end test: None (documentation-only step).
-
 - Extend Schema Verses
   Add nullable `detected_verse_id` TEXT field to `StoredMessage` model in `schema.py` for linking messages to Sura:Ayah pairs. Since database operates in ephemeral mode, simply extend the model definition without migration logic.
   End-to-end test: Run fresh initialization, insert message with `detected_verse_id="2:255"`, retrieve it, verify field persists correctly.
