@@ -21,25 +21,27 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-- Define Dashboard Consumption Schema
-  Start by defining the JSON structure the dashboard will consume, specifying fields like total posts, channel breakdowns, and top keywords. Work backwards from this output format to determine what data aggregation is needed.
-  End-to-end test: Documentation step - no test required.
+### Data Layer: Foundations (ROADMAP_ANALYSIS_PIPELINE.md Part 1)
 
-- Design Supporting Schemas
-  Design the intermediate aggregation structures (in-memory counters, dataclasses), database query result schemas, configuration inputs (date ranges, filters), and test fixture formats. Ensure all schemas align with the dashboard consumption format defined in the previous step.
-  End-to-end test: Documentation step - no test required.
+- Document Ephemeral Database
+  Add section to `AGENTS_SYSTEM_ARCH.md` explaining that storage assumes ephemeral mode with fresh database initialization on each run. This design choice means no migration infrastructure is needed, as schema changes apply to a clean slate.
+  End-to-end test: None (documentation-only step).
 
-- Implement Aggregation Pipeline
-  Build the analysis routine that reads stored posts, tallies counts by channel and keyword using the defined schemas, and outputs the JSON artifact. Wire together database queries, aggregation logic, and serialization into a CLI command.
-  End-to-end test: Running CLI command that performs just the analysis routine on the existing data produces aggregate counts for sample data.
+- Extend Schema Verses
+  Add nullable `detected_verse_id` TEXT field to `StoredMessage` model in `schema.py` for linking messages to Sura:Ayah pairs. Since database operates in ephemeral mode, simply extend the model definition without migration logic.
+  End-to-end test: Run fresh initialization, insert message with `detected_verse_id="2:255"`, retrieve it, verify field persists correctly.
 
-- Generate JSON summary from existing DB to serve for the metric dashboard.
+- Build Verse Enrichment
+  Implement enrichment module that extracts Quranic verse references from message text using Sura:Ayah pattern matching. This fulfills the enrichment phase architecture described in `AGENTS_SYSTEM_ARCH.md`, preparing messages for five-axis tensor analysis.
+  End-to-end test: Pass message containing Quranic verse to enrichment function, verify it returns correct verse mappings, store enriched message, confirm field persists.
 
-- Render Metric Dashboard
-  Build a static dashboard that surfaces total posts and top Quran references from the generated JSON summary. Ensure the view remains lightweight and only depends on the summary artifact for data.
-  End-to-end test: Serving the dashboard locally displays counts matching the JSON summary.
+- Wire Enrichment Pipeline
+  Integrate verse detection into the message storage flow so `detected_verse_id` populates automatically during ingestion. Update `storage.py` and collector to call enrichment before persisting messages.
+  End-to-end test: Fetch channel message containing verse reference, verify `detected_verse_id` is automatically populated in database without manual intervention.
 
-- Add ability to fetch large amounts (100k and up) of messages. First brainstorm approaches on how to do this, only then do it.
+- Add Semantic Ideals Field
+  Introduce `semantic_ideals` JSON array field to track tagged ideals per verse citation within each message. This enables the "Ideal" dimension of the verse×ideal×channel×time×sentiment tensor.
+  End-to-end test: Store a message with `semantic_ideals` containing `["justice", "mercy"]`, fetch it, and confirm JSON parsing returns the correct array.
 
 
 ## Documentation Update Process
