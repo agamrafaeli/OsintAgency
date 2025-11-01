@@ -21,19 +21,19 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
+- Define Dashboard Consumption Schema
+  Start by defining the JSON structure the dashboard will consume, specifying fields like total posts, channel breakdowns, and top keywords. Work backwards from this output format to determine what data aggregation is needed.
+  End-to-end test: Documentation step - no test required.
 
+- Design Supporting Schemas
+  Design the intermediate aggregation structures (in-memory counters, dataclasses), database query result schemas, configuration inputs (date ranges, filters), and test fixture formats. Ensure all schemas align with the dashboard consumption format defined in the previous step.
+  End-to-end test: Documentation step - no test required.
 
-- Setup Fetch-All Subcommand
-  Add a fetch-all subcommand under setup that fetches messages from all active subscriptions with configurable date limits. This enables efficient bulk data collection for testing the full pipeline.
-  End-to-end test: Running `osintagency setup fetch-all --days 30` fetches the last 30 days of messages from all active subscribed channels.
-
+- Implement Aggregation Pipeline
+  Build the analysis routine that reads stored posts, tallies counts by channel and keyword using the defined schemas, and outputs the JSON artifact. Wire together database queries, aggregation logic, and serialization into a CLI command.
+  End-to-end test: Running CLI command that performs just the analysis routine on the existing data produces aggregate counts for sample data.
 
 - Generate JSON summary from existing DB to serve for the metric dashboard.
-
-
-- Compute Aggregate Summaries
-  Implement a lightweight analysis routine that reads stored posts and tallies counts by channel and keyword. Expose the summary as a JSON artifact consumable by downstream interfaces.
-  End-to-end test: Running ClI command that performs just the analysis routine on the existing data produces aggregate counts for sample data.
 
 - Render Metric Dashboard
   Build a static dashboard that surfaces total posts and top Quran references from the generated JSON summary. Ensure the view remains lightweight and only depends on the summary artifact for data.
