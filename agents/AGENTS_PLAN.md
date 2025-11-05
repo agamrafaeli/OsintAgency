@@ -23,10 +23,6 @@ When planning / executing a step from this plan:
 
 ### Data Layer: Foundations (ROADMAP_ANALYSIS_PIPELINE.md Part 1)
 
-- Extend Schema Verses
-  Introduce a `DetectedVerse` table that links messages to Sura:Ayah entries with columns (`id`, `message_id`, `sura`, `ayah`, `confidence`, `is_partial`) and remove the single-field verse storage from `StoredMessage`. Because storage is ephemeral, update only the `schema.py` model definitions without migrations.
-  End-to-end test: Initialize fresh storage, insert a message plus two linked verses, fetch the message with a verse join, and confirm the rows persist.
-
 - Build Verse Enrichment
   Implement enrichment module that extracts Quranic verse references from message text using Sura:Ayah pattern matching and returns structured records ready for insertion into `DetectedVerse` (without span metadata). This fulfills the enrichment phase architecture described in `AGENTS_SYSTEM_ARCH.md`, preparing messages for five-axis tensor analysis.
   End-to-end test: Pass message containing Quranic verse to enrichment function, verify it returns the correct verse objects, persist them, and confirm the rows appear in `DetectedVerse`.

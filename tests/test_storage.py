@@ -1,6 +1,9 @@
 from datetime import datetime, timezone
 
+from peewee import JOIN
+
 from osintagency import storage
+from osintagency.schema import DetectedVerse, StoredMessage
 
 
 def test_persist_messages_creates_table_and_upserts(tmp_path):
@@ -47,3 +50,67 @@ def test_persist_messages_serializes_datetime_payload(tmp_path):
     rows = storage.fetch_messages("@channel", db_path=db_path)
 
     assert rows[0]["raw_payload"]["fetched_at"] == message["fetched_at"].isoformat()
+
+
+def test_detected_verse_rows_persist_with_join(tmp_path):
+    db_path = tmp_path / "messages.sqlite"
+    message_payload = {
+        "id": 42,
+        "timestamp": "2024-04-20T12:00:00",
+        "text": "Reference to 2:255 and 2:256.",
+    }
+
+    storage.persist_messages("@analysis", [message_payload], db_path=db_path)
+
+    database = storage._initialize_database(db_path)
+    try:
+        storage._ensure_schema()
+        with database.atomic():
+            DetectedVerse.insert_many(
+                [
+                    {
+                        "message_id": 42,
+                        "sura": 2,
+                        "ayah": 255,
+                        "confidence": 0.95,
+                        "is_partial": False,
+                    },
+                    {
+                        "message_id": 42,
+                        "sura": 2,
+                        "ayah": 256,
+                        "confidence": 0.7,
+                        "is_partial": True,
+                    },
+                ]
+            ).execute()
+    finally:
+        database.close()
+
+    database = storage._initialize_database(db_path)
+    try:
+        joined_rows = list(
+            StoredMessage.select(
+                StoredMessage.channel_id,
+                StoredMessage.message_id,
+                DetectedVerse.sura,
+                DetectedVerse.ayah,
+                DetectedVerse.confidence,
+                DetectedVerse.is_partial,
+            )
+            .join(
+                DetectedVerse,
+                JOIN.INNER,
+                on=(DetectedVerse.message_id == StoredMessage.message_id),
+            )
+            .where(StoredMessage.message_id == 42)
+            .order_by(DetectedVerse.id)
+            .dicts()
+        )
+    finally:
+        database.close()
+
+    assert [row["channel_id"] for row in joined_rows] == ["@analysis", "@analysis"]
+    assert [(row["sura"], row["ayah"]) for row in joined_rows] == [(2, 255), (2, 256)]
+    assert joined_rows[0]["confidence"] == 0.95
+    assert joined_rows[1]["is_partial"] is True

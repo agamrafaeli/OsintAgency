@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from peewee import (
+    AutoField,
     BooleanField,
     CharField,
     CompositeKey,
     DatabaseProxy,
+    FloatField,
     IntegerField,
     Model,
     TextField,
@@ -32,6 +34,18 @@ class StoredMessage(BaseModel):
         primary_key = CompositeKey("channel_id", "message_id")
 
 
+class DetectedVerse(BaseModel):
+    id = AutoField()
+    message_id = IntegerField()
+    sura = IntegerField()
+    ayah = IntegerField()
+    confidence = FloatField()
+    is_partial = BooleanField(default=False)
+
+    class Meta:
+        table_name = "detected_verses"
+
+
 class Subscription(BaseModel):
     channel_id = CharField(primary_key=True)
     name = TextField(null=True)
@@ -43,4 +57,10 @@ class Subscription(BaseModel):
         table_name = "subscriptions"
 
 
-__all__ = ["database_proxy", "BaseModel", "StoredMessage", "Subscription"]
+__all__ = [
+    "database_proxy",
+    "BaseModel",
+    "StoredMessage",
+    "DetectedVerse",
+    "Subscription",
+]

@@ -10,7 +10,7 @@ from typing import Iterable, Mapping, MutableMapping
 
 from peewee import EXCLUDED, SqliteDatabase
 
-from .schema import StoredMessage, database_proxy
+from .schema import DetectedVerse, StoredMessage, database_proxy
 
 DEFAULT_DB_FILENAME = "messages.sqlite3"
 _current_db_path: Path | None = None
@@ -159,4 +159,4 @@ def _ensure_schema() -> None:
     database = database_proxy.obj
     if database is None:
         raise RuntimeError("Database has not been initialized.")
-    database.create_tables([StoredMessage], safe=True)
+    database.create_tables([StoredMessage, DetectedVerse], safe=True)
