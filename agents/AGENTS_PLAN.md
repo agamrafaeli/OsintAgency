@@ -24,20 +24,20 @@ When planning / executing a step from this plan:
 ### Data Layer: Foundations (ROADMAP_ANALYSIS_PIPELINE.md Part 1)
 
 - Extend Schema Verses
-  Add nullable `detected_verse_id` TEXT field to `StoredMessage` model in `schema.py` for linking messages to Sura:Ayah pairs. Since database operates in ephemeral mode, simply extend the model definition without migration logic.
-  End-to-end test: Run fresh initialization, insert message with `detected_verse_id="2:255"`, retrieve it, verify field persists correctly.
+  Introduce a `DetectedVerse` table that links messages to Sura:Ayah entries with columns (`id`, `message_id`, `sura`, `ayah`, `confidence`, `is_partial`) and remove the single-field verse storage from `StoredMessage`. Because storage is ephemeral, update only the `schema.py` model definitions without migrations.
+  End-to-end test: Initialize fresh storage, insert a message plus two linked verses, fetch the message with a verse join, and confirm the rows persist.
 
 - Build Verse Enrichment
-  Implement enrichment module that extracts Quranic verse references from message text using Sura:Ayah pattern matching. This fulfills the enrichment phase architecture described in `AGENTS_SYSTEM_ARCH.md`, preparing messages for five-axis tensor analysis.
-  End-to-end test: Pass message containing Quranic verse to enrichment function, verify it returns correct verse mappings, store enriched message, confirm field persists.
+  Implement enrichment module that extracts Quranic verse references from message text using Sura:Ayah pattern matching and returns structured records ready for insertion into `DetectedVerse` (without span metadata). This fulfills the enrichment phase architecture described in `AGENTS_SYSTEM_ARCH.md`, preparing messages for five-axis tensor analysis.
+  End-to-end test: Pass message containing Quranic verse to enrichment function, verify it returns the correct verse objects, persist them, and confirm the rows appear in `DetectedVerse`.
 
 - Wire Enrichment Pipeline
-  Integrate verse detection into the message storage flow so `detected_verse_id` populates automatically during ingestion. Update `storage.py` and collector to call enrichment before persisting messages.
-  End-to-end test: Fetch channel message containing verse reference, verify `detected_verse_id` is automatically populated in database without manual intervention.
+  Integrate verse detection into the message storage flow so `DetectedVerse` rows are created automatically during ingestion. Update `storage.py` and the collector to call enrichment before persisting messages.
+  End-to-end test: Fetch channel message containing a verse reference, verify linked `DetectedVerse` rows are automatically written without manual intervention.
 
 - Add Semantic Ideals Field
-  Introduce `semantic_ideals` JSON array field to track tagged ideals per verse citation within each message. This enables the "Ideal" dimension of the verse×ideal×channel×time×sentiment tensor.
-  End-to-end test: Store a message with `semantic_ideals` containing `["justice", "mercy"]`, fetch it, and confirm JSON parsing returns the correct array.
+  Introduce a `semantic_ideals` JSON array field on `DetectedVerse` to track tagged ideals per verse citation within each message. This enables the "Ideal" dimension of the verse×ideal×channel×time×sentiment tensor by attaching ideals to the normalized verse rows.
+  End-to-end test: Store a message whose detected verses each carry `semantic_ideals` such as `["justice", "mercy"]`, fetch linked verse records, and confirm JSON parsing returns the correct arrays.
 
 
 ## Documentation Update Process
