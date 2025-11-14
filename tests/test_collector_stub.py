@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from osintagency import storage
+from osintagency.schema import DetectedVerse
 
 
 @pytest.fixture(autouse=True)
@@ -136,3 +137,45 @@ def test_collect_messages_with_offset_date(monkeypatch: pytest.MonkeyPatch, tmp_
     for row in rows:
         msg_time = datetime.fromisoformat(row["posted_at"])
         assert msg_time > offset_date
+
+
+def test_collect_messages_runs_quran_enrichment(tmp_path):
+    from osintagency.collector import collect_messages
+
+    verse_text = (
+        "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ "
+        "سِنَةٌ وَلَا نَوْمٌ"
+    )
+
+    class VerseClient:
+        requires_auth = False
+
+        def fetch_messages(self, channel_id, limit, offset_date=None):  # noqa: D401
+            return [
+                {
+                    "id": 501,
+                    "timestamp": "2024-05-20T00:00:00",
+                    "text": verse_text,
+                }
+            ]
+
+    db_path = tmp_path / "collector.sqlite"
+
+    outcome = collect_messages(
+        limit=1,
+        channel_id="@analysis",
+        telegram_client=VerseClient(),
+        db_path=db_path,
+    )
+
+    assert outcome.stored_messages == 1
+
+    database = storage._initialize_database(db_path)
+    try:
+        storage._ensure_schema()
+        verse_rows = list(DetectedVerse.select().dicts())
+    finally:
+        database.close()
+
+    assert verse_rows, "Expected verse detection rows to be persisted"
+    assert {row["message_id"] for row in verse_rows} == {501}

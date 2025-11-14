@@ -114,3 +114,80 @@ def test_detected_verse_rows_persist_with_join(tmp_path):
     assert [(row["sura"], row["ayah"]) for row in joined_rows] == [(2, 255), (2, 256)]
     assert joined_rows[0]["confidence"] == 0.95
     assert joined_rows[1]["is_partial"] is True
+
+
+def test_persist_detected_verses_inserts_rows(tmp_path):
+    db_path = tmp_path / "messages.sqlite"
+    message_payload = {
+        "id": 7,
+        "timestamp": "2024-04-01T00:00:00",
+        "text": "Reference to ayat",
+    }
+
+    storage.persist_messages("@analysis", [message_payload], db_path=db_path)
+
+    inserted = storage.persist_detected_verses(
+        [
+            {
+                "message_id": 7,
+                "sura": 1,
+                "ayah": 2,
+                "confidence": 0.88,
+                "is_partial": True,
+            }
+        ],
+        message_ids=[7],
+        db_path=db_path,
+    )
+    assert inserted == 1
+
+    database = storage._initialize_database(db_path)
+    try:
+        storage._ensure_schema()
+        verse_rows = list(DetectedVerse.select().dicts())
+    finally:
+        database.close()
+
+    assert len(verse_rows) == 1
+    assert verse_rows[0]["message_id"] == 7
+    assert verse_rows[0]["sura"] == 1
+    assert verse_rows[0]["ayah"] == 2
+    assert verse_rows[0]["is_partial"] is True
+
+
+def test_persist_detected_verses_refreshes_rows(tmp_path):
+    db_path = tmp_path / "messages.sqlite"
+    payload = {
+        "id": 99,
+        "timestamp": "2024-04-02T00:00:00",
+        "text": "First revision",
+    }
+
+    storage.persist_messages("@analysis", [payload], db_path=db_path)
+
+    storage.persist_detected_verses(
+        [
+            {
+                "message_id": 99,
+                "sura": 2,
+                "ayah": 255,
+                "confidence": 1.0,
+                "is_partial": False,
+            }
+        ],
+        message_ids=[99],
+        db_path=db_path,
+    )
+
+    storage.persist_detected_verses(
+        [],
+        message_ids=[99],
+        db_path=db_path,
+    )
+
+    database = storage._initialize_database(db_path)
+    try:
+        storage._ensure_schema()
+        assert DetectedVerse.select().count() == 0
+    finally:
+        database.close()

@@ -42,8 +42,11 @@ This document now focuses on the system overview and component responsibilities.
 ## Enrichment Layer
 - Enrichment primarily lives in `osintagency/services/quran_detector.py`, which normalizes Quranic references and emits structured data destined for `DetectedVerse`.
 - `detect_verses` now runs the bundled `qMatcherAnnotater` to find verbatim Quran text (after stripping tashkeel and normalizing variant Arabic forms) and returns dictionaries containing (`message_id`, `sura`, `ayah`, `confidence`, `is_partial`) so enrichment callers can bulk insert into the database without replicating parsing logic.
+- `collector.collect_messages` orchestrates enrichment up front: every fetch batch is routed through `detect_verses`, and the resulting rows are passed into `storage.persist_messages`, which atomically refreshes the associated `DetectedVerse` entries before inserting the new detections.
+- `collector.collect_messages` orchestrates enrichment up front: every fetch batch is routed through `detect_verses`, and the resulting rows are persisted via `storage.persist_detected_verses` after the messages themselves are stored, so enrichment can eventually run as a dedicated workload without touching the ingestion core.
 - The detector depends on its own `dfiles/` data bundle and matching routines, so aligning ingestion hooks with that module keeps the verse-detection logic centralized.
 
 ## Storage Interactions
 - `osintagency/storage.py` wires the detector output into Peewee so each stored message includes both its raw payload and the derived `DetectedVerse` rows needed for downstream tensor analysis.
+- The storage layer now exposes `persist_detected_verses`, which normalizes detections, wipes stale rows for each processed message id, and bulk inserts replacements within a single transaction, allowing other enrichers to reuse the same code path.
 - Keep this document updated when ingestion hooks or schema changes (e.g., `semantic_ideals`) touch the enrichment/storage boundary to maintain architectural clarity.

@@ -8,7 +8,8 @@ from pathlib import Path
 from typing import List, Protocol
 
 from .config import TelegramConfig, load_telegram_config
-from .storage import persist_messages, resolve_db_path
+from .storage import persist_detected_verses, persist_messages, resolve_db_path
+from .services import quran_detector
 
 
 @dataclass(frozen=True)
@@ -137,6 +138,25 @@ class TelethonTelegramClient:
         return messages
 
 
+def _detect_verses_for_messages(messages: List[dict[str, object]]) -> list[dict[str, object]]:
+    """Return verse detections for each message payload."""
+    detected_rows: list[dict[str, object]] = []
+    for payload in messages:
+        message_id = payload.get("id")
+        if message_id is None:
+            continue
+        try:
+            detections = quran_detector.detect_verses(
+                message_id=message_id,
+                text=payload.get("text"),
+            )
+        except ValueError:
+            continue
+        if detections:
+            detected_rows.extend(detections)
+    return detected_rows
+
+
 def collect_messages(
     *,
     limit: int,
@@ -160,7 +180,17 @@ def collect_messages(
     messages = telegram_client.fetch_messages(
         target_channel, limit, offset_date=offset_date
     )
-    stored = persist_messages(target_channel, messages, db_path=resolved_path)
+    detected_verses = _detect_verses_for_messages(messages)
+    stored = persist_messages(
+        target_channel,
+        messages,
+        db_path=resolved_path,
+    )
+    persist_detected_verses(
+        detected_verses,
+        message_ids=[message["id"] for message in messages],
+        db_path=resolved_path,
+    )
     return CollectionOutcome(
         channel_id=target_channel,
         stored_messages=stored,

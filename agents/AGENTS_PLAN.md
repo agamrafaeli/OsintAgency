@@ -35,6 +35,10 @@ When planning / executing a step from this plan:
   Restructure the flat `tests/` folder into logical subdirectories: `unit/` for isolated component tests, `integration/` for multi-component tests, `cli/` for all CLI-related tests, and `fixtures/` for shared test utilities. This improves test discoverability, enables selective test execution, and follows Python testing conventions. Update `AGENTS_TESTING.md` with the new structure and guidelines for where to place new tests.
   End-to-end test: Run `pytest` from project root and verify all existing tests pass without modification after reorganization.
 
+- Define manageble file sizes / module sizes for easy human readability
+- Refactor storage.py to be an extensible module
+- Refactor collector.py to be an extensible module
+
 
 ## Documentation Update Process
 

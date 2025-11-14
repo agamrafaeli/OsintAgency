@@ -160,3 +160,86 @@ def _ensure_schema() -> None:
     if database is None:
         raise RuntimeError("Database has not been initialized.")
     database.create_tables([StoredMessage, DetectedVerse], safe=True)
+
+
+def persist_detected_verses(
+    detected_verses: Iterable[Mapping[str, object]],
+    *,
+    message_ids: Iterable[int | str] | None = None,
+    db_path: str | os.PathLike[str] | None = None,
+) -> int:
+    """Upsert detected verse rows independently from message storage."""
+    target_path = resolve_db_path(db_path)
+    database = _initialize_database(target_path)
+
+    normalized_rows, refresh_ids = _normalize_detected_verses(
+        detected_verses, message_ids
+    )
+
+    if not refresh_ids and not normalized_rows:
+        _ensure_schema()
+        database.close()
+        return 0
+
+    with database.atomic():
+        _ensure_schema()
+        if refresh_ids:
+            (
+                DetectedVerse.delete()
+                .where(DetectedVerse.message_id.in_(refresh_ids))
+                .execute()
+            )
+        if normalized_rows:
+            DetectedVerse.insert_many(normalized_rows).execute()
+
+    database.close()
+    return len(normalized_rows)
+
+
+def _normalize_detected_verses(
+    detected_verses: Iterable[Mapping[str, object]],
+    message_ids: Iterable[int | str] | None,
+) -> tuple[list[dict[str, object]], set[int]]:
+    refresh_ids: set[int] = set()
+    if message_ids is not None:
+        for identifier in message_ids:
+            try:
+                refresh_ids.add(int(identifier))
+            except (TypeError, ValueError):
+                continue
+
+    normalized_rows: list[dict[str, object]] = []
+    seen_rows: set[tuple[int, int, int]] = set()
+
+    for row in detected_verses:
+        try:
+            message_id = int(row["message_id"])
+            sura = int(row["sura"])
+            ayah = int(row["ayah"])
+        except (KeyError, TypeError, ValueError):
+            continue
+
+        if message_ids is not None and message_id not in refresh_ids:
+            continue
+
+        refresh_ids.add(message_id)
+        confidence = float(row.get("confidence", 1.0))
+        is_partial = bool(row.get("is_partial", False))
+        key = (message_id, sura, ayah)
+        if key in seen_rows:
+            continue
+        seen_rows.add(key)
+        normalized_rows.append(
+            {
+                "message_id": message_id,
+                "sura": sura,
+                "ayah": ayah,
+                "confidence": confidence,
+                "is_partial": is_partial,
+            }
+        )
+
+    if message_ids is None and not refresh_ids:
+        refresh_ids.update(row["message_id"] for row in normalized_rows)
+
+    return normalized_rows, refresh_ids
