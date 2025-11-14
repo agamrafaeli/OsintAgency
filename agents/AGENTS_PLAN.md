@@ -24,12 +24,18 @@ When planning / executing a step from this plan:
 ### Data Layer: Foundations (ROADMAP_ANALYSIS_PIPELINE.md Part 1)
 
 - Wire Enrichment Pipeline
-  Integrate verse detection into the message storage flow so `DetectedVerse` rows are created automatically during ingestion. Update `storage.py` and the collector to call enrichment before persisting messages.
+  Introduce a dedicated enrichment orchestration inside `collect_messages` (per `ANALYSIS_FRAMEWORK_FLOWCHART.md` Layer 1) so Quran detection and future enrichers run before persistence. Teach `storage.py` to accept the enriched rows, refresh stale entries on re-ingest, and commit them atomically alongside stored messages.
   End-to-end test: Fetch channel message containing a verse reference, verify linked `DetectedVerse` rows are automatically written without manual intervention.
 
 - Add Semantic Ideals Field
   Introduce a `semantic_ideals` JSON array field on `DetectedVerse` to track tagged ideals per verse citation within each message. This enables the "Ideal" dimension of the verse×ideal×channel×time×sentiment tensor by attaching ideals to the normalized verse rows.
   End-to-end test: Store a message whose detected verses each carry `semantic_ideals` such as `["justice", "mercy"]`, fetch linked verse records, and confirm JSON parsing returns the correct arrays.
+
+### Infrastructure: Test Organization
+
+- Reorganize Tests Directory
+  Restructure the flat `tests/` folder into logical subdirectories: `unit/` for isolated component tests, `integration/` for multi-component tests, `cli/` for all CLI-related tests, and `fixtures/` for shared test utilities. This improves test discoverability, enables selective test execution, and follows Python testing conventions. Update `AGENTS_TESTING.md` with the new structure and guidelines for where to place new tests.
+  End-to-end test: Run `pytest` from project root and verify all existing tests pass without modification after reorganization.
 
 
 ## Documentation Update Process
