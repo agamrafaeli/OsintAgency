@@ -23,10 +23,6 @@ When planning / executing a step from this plan:
 
 ### Data Layer: Foundations (ROADMAP_ANALYSIS_PIPELINE.md Part 1)
 
-- Build Verse Enrichment
-  Implement enrichment module that extracts Quranic verse references from message text using Sura:Ayah pattern matching and returns structured records ready for insertion into `DetectedVerse` (without span metadata). This fulfills the enrichment phase architecture described in `AGENTS_SYSTEM_ARCH.md`, preparing messages for five-axis tensor analysis.
-  End-to-end test: Pass message containing Quranic verse to enrichment function, verify it returns the correct verse objects, persist them, and confirm the rows appear in `DetectedVerse`.
-
 - Wire Enrichment Pipeline
   Integrate verse detection into the message storage flow so `DetectedVerse` rows are created automatically during ingestion. Update `storage.py` and the collector to call enrichment before persisting messages.
   End-to-end test: Fetch channel message containing a verse reference, verify linked `DetectedVerse` rows are automatically written without manual intervention.

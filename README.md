@@ -55,3 +55,9 @@ The repository is under active build-out. Follow the plans in `agents/AGENTS_PLA
 - Override the location by setting the `OSINTAGENCY_DB_PATH` environment variable before invoking any fetch commands.
 - Re-running the fetcher upserts messages keyed by channel and Telegram id, so only new posts increase the stored row count.
 - Helper utilities in `osintagency.storage` expose the ORM models so tests and analytics code can query the stored messages without reaching into SQLite directly.
+
+## Verse Enrichment
+
+- `osintagency.services.quran_detector.detect_verses` inspects verbatim Arabic text and identifies quoted Quran verses using the bundled matcher (`qMatcherAnnotater`), returning dictionaries containing `message_id`, `sura`, `ayah`, `confidence`, and `is_partial`.
+- The matcher removes tashkeel, normalizes alternate Arabic forms, and aligns the detected verse names with canonical sura/ayah metadata from `dfiles/quran-index.xml` so the enrichment layer can attribute each quote precisely.
+- The returned dictionaries can be bulk inserted directly into the `DetectedVerse` table, enabling downstream tensor analysis without needing to recompute the parsing step.

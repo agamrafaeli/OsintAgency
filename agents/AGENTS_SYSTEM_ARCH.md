@@ -38,3 +38,12 @@ See `AGENT_SCHEMA_REFERENCE.md` for table definitions and `AGENT_DATA_FLOW.md` f
 
 ## Documentation Decomposition Notice
 This document now focuses on the system overview and component responsibilities. When ingestion, enrichment, or schema code changes, update both `AGENTS_SYSTEM_ARCH.md` and the detailed appendices (`AGENT_SCHEMA_REFERENCE.md`, `AGENT_DATA_FLOW.md`) to keep architecture and deep references in sync.
+
+## Enrichment Layer
+- Enrichment primarily lives in `osintagency/services/quran_detector.py`, which normalizes Quranic references and emits structured data destined for `DetectedVerse`.
+- `detect_verses` now runs the bundled `qMatcherAnnotater` to find verbatim Quran text (after stripping tashkeel and normalizing variant Arabic forms) and returns dictionaries containing (`message_id`, `sura`, `ayah`, `confidence`, `is_partial`) so enrichment callers can bulk insert into the database without replicating parsing logic.
+- The detector depends on its own `dfiles/` data bundle and matching routines, so aligning ingestion hooks with that module keeps the verse-detection logic centralized.
+
+## Storage Interactions
+- `osintagency/storage.py` wires the detector output into Peewee so each stored message includes both its raw payload and the derived `DetectedVerse` rows needed for downstream tensor analysis.
+- Keep this document updated when ingestion hooks or schema changes (e.g., `semantic_ideals`) touch the enrichment/storage boundary to maintain architectural clarity.

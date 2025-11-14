@@ -3,7 +3,38 @@
 # -*- coding: utf8 -*-
 
 
-from rapidfuzz.distance import Levenshtein as _RapidLevenshtein
+from dataclasses import dataclass
+from functools import lru_cache
+from pathlib import Path
+from typing import Sequence
+
+try:
+    from rapidfuzz.distance import Levenshtein as _RapidLevenshtein
+except ModuleNotFoundError:  # pragma: no cover - fallback for local dev without rapidfuzz installed
+    def _levenshtein_distance(a: Sequence[str] | str, b: Sequence[str] | str) -> int:
+        if a == b:
+            return 0
+        a_len = len(a)
+        b_len = len(b)
+        if a_len == 0:
+            return b_len
+        if b_len == 0:
+            return a_len
+        previous_row = list(range(b_len + 1))
+        for i, char_a in enumerate(a, start=1):
+            current_row = [i]
+            for j, char_b in enumerate(b, start=1):
+                insertions = previous_row[j] + 1
+                deletions = current_row[j - 1] + 1
+                substitutions = previous_row[j - 1] + (char_a != char_b)
+                current_row.append(min(insertions, deletions, substitutions))
+            previous_row = current_row
+        return previous_row[-1]
+
+    class _RapidLevenshtein:  # type: ignore[no-redef]
+        @staticmethod
+        def distance(a: Sequence[str] | str, b: Sequence[str] | str) -> int:
+            return _levenshtein_distance(a, b)
 
 class _RapidFuzzLevenshtein:
     @staticmethod
@@ -19,6 +50,92 @@ import os
 
 debug = False   
 globalDelimeters= '#|،|\.|{|}|\n|؟|!|\(|\)|﴿|﴾|۞|۝|\*|-|\+|\:|…'
+
+
+DATA_DIR = Path(__file__).resolve().parent / "dfiles"
+
+
+@lru_cache(maxsize=1)
+def _get_quran_matcher() -> "qMatcherAnnotater":
+    return qMatcherAnnotater()
+
+
+@lru_cache(maxsize=1)
+def _sura_lookup() -> dict[str, int]:
+    sura_names = buildSuraIndex(str(DATA_DIR / "quran-index.xml"))
+    return {name: index for index, name in enumerate(sura_names, start=1)}
+
+
+@dataclass(frozen=True)
+class DetectedVerseMatch:
+    """Structured representation of a detected verse reference."""
+
+    message_id: int
+    sura: int
+    ayah: int
+    confidence: float = 1.0
+    is_partial: bool = False
+
+    def as_row(self) -> dict[str, object]:
+        return {
+            "message_id": self.message_id,
+            "sura": self.sura,
+            "ayah": self.ayah,
+            "confidence": self.confidence,
+            "is_partial": self.is_partial,
+        }
+
+
+def detect_verses(message_id: int | str, text: str | None) -> list[dict[str, object]]:
+    """Return structured verse references extracted from verbatim Quranic text."""
+    if text is None or not text.strip():
+        return []
+
+    matcher = _get_quran_matcher()
+    sura_lookup = _sura_lookup()
+    normalized_message_id = _coerce_message_id(message_id)
+    seen: set[tuple[int, int]] = set()
+    rows: list[dict[str, object]] = []
+
+    matches = matcher.matchAll(text, findErr=True, findMissing=True)
+    for match in matches:
+        sura_name = match.get("aya_name")
+        if not sura_name:
+            continue
+        sura_number = sura_lookup.get(sura_name)
+        if sura_number is None:
+            continue
+
+        start = int(match.get("aya_start", 0))
+        end = int(match.get("aya_end", start))
+        if start < 1:
+            start = 1
+        if end < start:
+            end = start
+
+        for ayah in range(start, end + 1):
+            key = (sura_number, ayah)
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append(
+                DetectedVerseMatch(
+                    message_id=normalized_message_id,
+                    sura=sura_number,
+                    ayah=ayah,
+                    confidence=1.0,
+                    is_partial=False,
+                ).as_row()
+            )
+    return rows
+
+
+def _coerce_message_id(message_id: int | str) -> int:
+    try:
+        return int(message_id)
+    except (TypeError, ValueError) as err:
+        raise ValueError("message_id must be convertible to int") from err
+
 
 #------------------------------------
 #General Utils
@@ -422,14 +539,15 @@ class qMatcherAnnotater():
     """ This is the main class that should be used for carrying out all matching and annotation tasks"""
 
     def __init__(self):
-        suras = buildSuraIndex('dfiles/quran-index.xml')
+        data_dir = DATA_DIR
+        suras = buildSuraIndex(str(data_dir / "quran-index.xml"))
         self.all = {}
         self.qOrig = buildVerseDics(suras)
         self.qNorm =  buildVerseDics(suras)
-        self.stops =  loadStops('dfiles/nonTerminals.txt')
+        self.stops =  loadStops(str(data_dir / "nonTerminals.txt"))
         self.ambig = set([])
         self.minLen = 3                                   #minimum acceptable match length 
-        addAyat('dfiles/quran-simple.txt', suras, self.all,self.qOrig,self.qNorm, self.ambig, self.minLen,self.stops)
+        addAyat(str(data_dir / "quran-simple.txt"), suras, self.all,self.qOrig,self.qNorm, self.ambig, self.minLen,self.stops)
         self.besm = 'بسم الله الرحمن الرحيم'
         #Expand this list for any verses that should not be matched if they appear alone 
         self.stopVerses = [self.besm, 'الله ونعم الوكيل', 'الحمد لله' ]
