@@ -25,13 +25,18 @@ When planning / executing a step from this plan:
 
 
 
-- Reorganize Tests Directory
-  Restructure the flat `tests/` folder into logical subdirectories: `unit/` for isolated component tests, `integration/` for multi-component tests, `cli/` for all CLI-related tests, and `fixtures/` for shared test utilities. This improves test discoverability, enables selective test execution, and follows Python testing conventions. Update `AGENTS_TESTING.md` with the new structure and guidelines for where to place new tests.
-  End-to-end test: Run `pytest` from project root and verify all existing tests pass without modification after reorganization.
 
-- Define manageble file sizes / module sizes for easy human readability
-- Refactor storage.py to be an extensible module
-- Refactor collector.py to be an extensible module
+- Define Module Boundaries
+  Document max recommended source-file sizes and module scopes for each layer so agents remain readable and easy to review. Update `AGENTS_SYSTEM_ARCH.md` with concrete thresholds and restructuring heuristics that contributors can reference before adding new functionality.
+  End-to-end test: None (documentation-only step).
+
+- Modularize Storage Layer
+  Break `osintagency/storage.py` into an interface plus pluggable implementations so new storage backends can register without editing core logic. Provide dependency-injected configuration plumbing so existing features keep working while enabling future adapters.
+  End-to-end test: Run `pytest tests/test_storage.py` to confirm writes, reads, and adapter selection behave the same after refactor.
+
+- Modularize Collector Layer
+  Restructure `osintagency/collector.py` into an extensible module that exposes a base collector interface and a registry for specialized collectors. Ensure collectors can be toggled via configuration and compose cleanly with the storage layer without circular imports.
+  End-to-end test: Execute `pytest tests/test_collector.py` (or add equivalent coverage) to verify collectors can be registered, invoked, and produce expected artifacts through the registry.
 
 - Add Semantic Ideals Field
   Introduce a `semantic_ideals` JSON array field on `DetectedVerse` to track tagged ideals per verse citation within each message. This enables the "Ideal" dimension of the verse×ideal×channel×time×sentiment tensor by attaching ideals to the normalized verse rows.

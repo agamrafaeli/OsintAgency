@@ -13,4 +13,4 @@ if str(PROJECT_ROOT) not in sys.path:
 os.environ.setdefault("OSINTAGENCY_SKIP_DOTENV", "1")
 
 # Import storage fixtures to make them available to all tests
-pytest_plugins = ["tests.fixtures"]
+pytest_plugins = ["tests.fixtures.fixtures"]

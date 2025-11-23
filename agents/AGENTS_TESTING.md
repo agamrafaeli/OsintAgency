@@ -18,7 +18,7 @@ This guide clarifies when to exercise the test suite and how to keep the shared 
    ```
 3. To focus on a specific area while iterating, target an individual test module:
    ```bash
-   pytest tests/test_fetch_channel.py -q
+   pytest tests/cli/test_fetch_channel.py -q
    ```
 4. For verbose failure details during debugging, drop the `-q` flag and optionally add `-vv`.
 
@@ -31,15 +31,20 @@ This guide clarifies when to exercise the test suite and how to keep the shared 
 ## Managing the `tests/` Folder
 
 - Keep all automated tests under `tests/` so they are collected automatically by `pytest`.
-- Name new test files `test_<feature>.py` and group related helpers or fixtures in modules with descriptive names rather than step numbers.
-- When adding fixtures or shared utilities, place them in `tests/conftest.py` or create dedicated fixture modules in `tests/` (e.g., `tests/fixtures.py` for storage fixtures).
-- Import fixture modules via `pytest_plugins` in `conftest.py` to make them discoverable across all tests (see example below).
+- Organize tests into the following subdirectories:
+  - `tests/unit/`: Isolated component tests (no external dependencies or complex interactions).
+  - `tests/integration/`: Multi-component tests (e.g., involving storage, database, or multiple modules).
+  - `tests/cli/`: Tests for CLI commands and interactions.
+  - `tests/fixtures/`: Shared test utilities and fixtures.
+- Name new test files `test_<feature>.py` and place them in the appropriate subdirectory.
+- When adding fixtures or shared utilities, place them in `tests/conftest.py` or create dedicated fixture modules in `tests/fixtures/` (e.g., `tests/fixtures/fixtures.py`).
+- Import fixture modules via `pytest_plugins` in `tests/conftest.py` to make them discoverable across all tests.
 - Avoid committing cached bytecode (`__pycache__`); if it appears, remove it before committing.
 - Store sample data or recorded responses under `tests/data/` (create the directory as needed) and document the data source inside that folder to keep provenance clear.
 
 ### Available Test Fixtures
 
-The project provides reusable fixtures for database testing in `tests/fixtures.py`:
+The project provides reusable fixtures for database testing in `tests/fixtures/fixtures.py`:
 
 - **`memory_db`**: Provides a temporary SQLite database file that is automatically cleaned up after each test. Use this for tests that need an isolated database.
 - **`populated_db`**: Extends `memory_db` by pre-populating it with sample message data. Use this when tests need existing data without setup boilerplate.
