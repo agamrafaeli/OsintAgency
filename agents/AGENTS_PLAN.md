@@ -25,11 +25,6 @@ When planning / executing a step from this plan:
 
 
 
-
-- Define Module Boundaries
-  Document max recommended source-file sizes and module scopes for each layer so agents remain readable and easy to review. Update `AGENTS_SYSTEM_ARCH.md` with concrete thresholds and restructuring heuristics that contributors can reference before adding new functionality.
-  End-to-end test: None (documentation-only step).
-
 - Modularize Storage Layer
   Break `osintagency/storage.py` into an interface plus pluggable implementations so new storage backends can register without editing core logic. Provide dependency-injected configuration plumbing so existing features keep working while enabling future adapters.
   End-to-end test: Run `pytest tests/test_storage.py` to confirm writes, reads, and adapter selection behave the same after refactor.

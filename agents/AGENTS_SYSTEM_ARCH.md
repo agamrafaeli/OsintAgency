@@ -50,3 +50,24 @@ This document now focuses on the system overview and component responsibilities.
 - `osintagency/storage.py` wires the detector output into Peewee so each stored message includes both its raw payload and the derived `DetectedVerse` rows needed for downstream tensor analysis.
 - The storage layer now exposes `persist_detected_verses`, which normalizes detections, wipes stale rows for each processed message id, and bulk inserts replacements within a single transaction, allowing other enrichers to reuse the same code path.
 - Keep this document updated when ingestion hooks or schema changes (e.g., `semantic_ideals`) touch the enrichment/storage boundary to maintain architectural clarity.
+
+## Module Boundaries & Code Standards
+
+### Max Source-File Size
+- **Recommended Limit**: ~300 lines or 15KB.
+- **Goal**: Maintain readability and ease of review.
+- **Restructuring Heuristics**:
+    - If a file exceeds this limit, consider splitting it into smaller, more focused modules.
+    - If a module has too many imports, it might be doing too much and violating the Single Responsibility Principle.
+
+### Module Scopes
+- **Single Responsibility**: Each module should have one clear purpose.
+- **Major Classes**: Prefer one major class per file. Helper classes that are tightly coupled can stay, but if they grow, move them.
+- **Utilities**: Group related utility functions into dedicated modules (e.g., `utils/date_utils.py`, `utils/string_utils.py`).
+
+### Tests & Fixtures
+- **Structure**: Tests should generally mirror the structure of the code they test.
+- **Fixtures**:
+    - Scope fixtures to the tests that use them.
+    - Use `conftest.py` levels (root, package, directory) wisely to avoid pollution.
+    - Avoid "god-fixtures" that set up the entire world; prefer composable, smaller fixtures.
