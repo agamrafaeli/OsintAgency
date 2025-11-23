@@ -43,10 +43,6 @@ When planning / executing a step from this plan:
   Build a CLI command that walks the registry, runs all enabled stages (fetch → detect) in order, and streams their outputs through the shared storage adapter, proving the composed flow works while still allowing single-stage CLI runs.
   End-to-end test: Run `pytest tests/test_pipeline_cli.py` to execute the full configured pipeline and confirm the final artifacts appear in storage, ensuring fetch results feed into detect.
 
-- Add Semantic Ideals Field
-  Introduce a `semantic_ideals` JSON array field on `DetectedVerse` to track tagged ideals per verse citation within each message. This enables the "Ideal" dimension of the verse×ideal×channel×time×sentiment tensor by attaching ideals to the normalized verse rows.
-  End-to-end test: Store a message whose detected verses each carry `semantic_ideals` such as `["justice", "mercy"]`, fetch linked verse records, and confirm JSON parsing returns the correct arrays.
-
 
 ## Documentation Update Process
 
