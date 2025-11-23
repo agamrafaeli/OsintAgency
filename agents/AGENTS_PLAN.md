@@ -23,11 +23,25 @@ When planning / executing a step from this plan:
 
 ### Data Layer: Foundations (ROADMAP_ANALYSIS_PIPELINE.md Part 1)
 
+- Stage Interface Runner
+  Extract a base collector interface from `osintagency/collector.py`, add a CLI stage runner that can invoke a named stage, and document the lifecycle hooks so future stages reuse it consistently. This scaffolding keeps the pipeline extensible while letting us invoke fetch or detect individually without importing storage directly.
+  End-to-end test: Run `pytest tests/test_stage_runner.py` to confirm the CLI runner loads a dummy stage implementation, executes it, and reports artifacts through the storage adapter.
 
+- Fetch Stage Module
+  Refactor the existing fetch logic into a stage module that inherits from the base interface, registers itself, and exposes a CLI command such as `osintagency collect fetch`. Provide a lightweight adapter so the stage writes fetched data without circular dependencies.
+  End-to-end test: Run `pytest tests/test_stage_fetch_cli.py` to ensure the CLI fetch stage can be triggered, performs its fetch, and stores artifacts through the adapter.
 
-- Modularize Collector Layer
-  Restructure `osintagency/collector.py` into an extensible module that exposes a base collector interface and a registry for specialized collectors. Ensure collectors can be toggled via configuration and compose cleanly with the storage layer without circular imports.
-  End-to-end test: Execute `pytest tests/test_collector.py` (or add equivalent coverage) to verify collectors can be registered, invoked, and produce expected artifacts through the registry.
+- Detect Stage Module
+  Turn the verse-detection logic into its own stage module tied to the base interface, reuse the CLI scaffolding, and maintain compatibility with the storage adapter so it loads data from fetch artifacts and emits detected verses.
+  End-to-end test: Run `pytest tests/test_stage_detect_cli.py` to assert the CLI detect stage runs independently and produces verse detections stored via the adapter.
+
+- Stage Registry & Storage Adapter
+  Introduce a registry that tracks available stages, honors configuration toggles for enabling/disabling each stage, and injects the storage adapter when wiring the CLI runner to avoid circular imports. Document how new stages can register themselves and how the registry consults configuration.
+  End-to-end test: Run `pytest tests/test_stage_registry_storage.py` to verify that enabling/disabling each stage via configuration controls which stages the registry executes and that those stages persist their expected artifacts.
+
+- Pipeline Composite CLI
+  Build a CLI command that walks the registry, runs all enabled stages (fetch → detect) in order, and streams their outputs through the shared storage adapter, proving the composed flow works while still allowing single-stage CLI runs.
+  End-to-end test: Run `pytest tests/test_pipeline_cli.py` to execute the full configured pipeline and confirm the final artifacts appear in storage, ensuring fetch results feed into detect.
 
 - Add Semantic Ideals Field
   Introduce a `semantic_ideals` JSON array field on `DetectedVerse` to track tagged ideals per verse citation within each message. This enables the "Ideal" dimension of the verse×ideal×channel×time×sentiment tensor by attaching ideals to the normalized verse rows.
