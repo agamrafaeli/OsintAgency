@@ -25,10 +25,6 @@ When planning / executing a step from this plan:
 
 
 
-- Modularize Storage Layer
-  Break `osintagency/storage.py` into an interface plus pluggable implementations so new storage backends can register without editing core logic. Provide dependency-injected configuration plumbing so existing features keep working while enabling future adapters.
-  End-to-end test: Run `pytest tests/test_storage.py` to confirm writes, reads, and adapter selection behave the same after refactor.
-
 - Modularize Collector Layer
   Restructure `osintagency/collector.py` into an extensible module that exposes a base collector interface and a registry for specialized collectors. Ensure collectors can be toggled via configuration and compose cleanly with the storage layer without circular imports.
   End-to-end test: Execute `pytest tests/test_collector.py` (or add equivalent coverage) to verify collectors can be registered, invoked, and produce expected artifacts through the registry.

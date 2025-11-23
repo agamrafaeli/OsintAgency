@@ -50,6 +50,16 @@ The project provides reusable fixtures for database testing in `tests/fixtures/f
 - **`populated_db`**: Extends `memory_db` by pre-populating it with sample message data. Use this when tests need existing data without setup boilerplate.
 - **`db_factory`**: Factory fixture for creating multiple isolated databases within a single test. Useful for testing multi-database scenarios.
 
+### Storage Backend Testing
+
+Storage integration tests in `tests/integration/test_storage.py` are parameterized to run against all storage backend implementations:
+
+- Tests use the `storage_backend` fixture, which is parameterized with backend classes (currently `[PeeweeStorage]`).
+- Tests are **backend-agnostic** and only interact through the `StorageBackend` interface.
+- To add a new storage backend, implement the `StorageBackend` interface and add it to the fixture's `params` list.
+- All backends must pass the same test suite, ensuring consistent behavior across implementations.
+- Avoid backend-specific code in integration tests; if you need to test backend-specific features, create a separate test file.
+
 ## Continuous Improvement
 
 - When introducing a new feature or bug fix, add or update tests in the same commit so the change set documents its coverage.

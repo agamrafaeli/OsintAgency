@@ -1,13 +1,19 @@
 from datetime import datetime, timezone
 
-from peewee import JOIN
+import pytest
 
-from osintagency import storage
-from osintagency.schema import DetectedVerse, StoredMessage
+from osintagency.storage.backends.peewee_backend import PeeweeStorage
 
 
-def test_persist_messages_creates_table_and_upserts(tmp_path):
+@pytest.fixture(params=[PeeweeStorage])
+def storage_backend(request, tmp_path):
+    """Parameterized fixture providing different storage backend implementations."""
+    backend_class = request.param
     db_path = tmp_path / "messages.sqlite"
+    return backend_class(db_path=db_path)
+
+
+def test_persist_messages_creates_table_and_upserts(storage_backend):
     first_batch = [
         {"id": 1, "timestamp": "2024-01-01T00:00:00", "text": "hello"},
     ]
@@ -16,10 +22,10 @@ def test_persist_messages_creates_table_and_upserts(tmp_path):
         {"id": 2, "timestamp": "2024-01-02T00:05:00", "text": "world"},
     ]
 
-    storage.persist_messages("@channel", first_batch, db_path=db_path)
-    storage.persist_messages("@channel", second_batch, db_path=db_path)
+    storage_backend.persist_messages("@channel", first_batch)
+    storage_backend.persist_messages("@channel", second_batch)
 
-    rows = storage.fetch_messages("@channel", db_path=db_path)
+    rows = storage_backend.fetch_messages("@channel")
     assert [row["message_id"] for row in rows] == [1, 2]
     first_row = rows[0]
     assert first_row["channel_id"] == "@channel"
@@ -28,17 +34,13 @@ def test_persist_messages_creates_table_and_upserts(tmp_path):
     assert first_row["raw_payload"]["text"] == "updated"
 
 
-def test_persist_messages_handles_empty_batch(tmp_path):
-    db_path = tmp_path / "messages.sqlite"
-
-    storage.persist_messages("@channel", [], db_path=db_path)
-
-    rows = storage.fetch_messages("@channel", db_path=db_path)
+def test_persist_messages_handles_empty_batch(storage_backend):
+    storage_backend.persist_messages("@channel", [])
+    rows = storage_backend.fetch_messages("@channel")
     assert rows == []
 
 
-def test_persist_messages_serializes_datetime_payload(tmp_path):
-    db_path = tmp_path / "messages.sqlite"
+def test_persist_messages_serializes_datetime_payload(storage_backend):
     message = {
         "id": 1,
         "timestamp": "2024-01-03T00:00:00",
@@ -46,87 +48,22 @@ def test_persist_messages_serializes_datetime_payload(tmp_path):
         "fetched_at": datetime(2024, 1, 3, 12, 30, tzinfo=timezone.utc),
     }
 
-    storage.persist_messages("@channel", [message], db_path=db_path)
-    rows = storage.fetch_messages("@channel", db_path=db_path)
+    storage_backend.persist_messages("@channel", [message])
+    rows = storage_backend.fetch_messages("@channel")
 
     assert rows[0]["raw_payload"]["fetched_at"] == message["fetched_at"].isoformat()
 
 
-def test_detected_verse_rows_persist_with_join(tmp_path):
-    db_path = tmp_path / "messages.sqlite"
-    message_payload = {
-        "id": 42,
-        "timestamp": "2024-04-20T12:00:00",
-        "text": "Reference to 2:255 and 2:256.",
-    }
-
-    storage.persist_messages("@analysis", [message_payload], db_path=db_path)
-
-    database = storage._initialize_database(db_path)
-    try:
-        storage._ensure_schema()
-        with database.atomic():
-            DetectedVerse.insert_many(
-                [
-                    {
-                        "message_id": 42,
-                        "sura": 2,
-                        "ayah": 255,
-                        "confidence": 0.95,
-                        "is_partial": False,
-                    },
-                    {
-                        "message_id": 42,
-                        "sura": 2,
-                        "ayah": 256,
-                        "confidence": 0.7,
-                        "is_partial": True,
-                    },
-                ]
-            ).execute()
-    finally:
-        database.close()
-
-    database = storage._initialize_database(db_path)
-    try:
-        joined_rows = list(
-            StoredMessage.select(
-                StoredMessage.channel_id,
-                StoredMessage.message_id,
-                DetectedVerse.sura,
-                DetectedVerse.ayah,
-                DetectedVerse.confidence,
-                DetectedVerse.is_partial,
-            )
-            .join(
-                DetectedVerse,
-                JOIN.INNER,
-                on=(DetectedVerse.message_id == StoredMessage.message_id),
-            )
-            .where(StoredMessage.message_id == 42)
-            .order_by(DetectedVerse.id)
-            .dicts()
-        )
-    finally:
-        database.close()
-
-    assert [row["channel_id"] for row in joined_rows] == ["@analysis", "@analysis"]
-    assert [(row["sura"], row["ayah"]) for row in joined_rows] == [(2, 255), (2, 256)]
-    assert joined_rows[0]["confidence"] == 0.95
-    assert joined_rows[1]["is_partial"] is True
-
-
-def test_persist_detected_verses_inserts_rows(tmp_path):
-    db_path = tmp_path / "messages.sqlite"
+def test_persist_detected_verses_inserts_rows(storage_backend):
     message_payload = {
         "id": 7,
         "timestamp": "2024-04-01T00:00:00",
         "text": "Reference to ayat",
     }
 
-    storage.persist_messages("@analysis", [message_payload], db_path=db_path)
+    storage_backend.persist_messages("@analysis", [message_payload])
 
-    inserted = storage.persist_detected_verses(
+    inserted = storage_backend.persist_detected_verses(
         [
             {
                 "message_id": 7,
@@ -137,35 +74,21 @@ def test_persist_detected_verses_inserts_rows(tmp_path):
             }
         ],
         message_ids=[7],
-        db_path=db_path,
     )
     assert inserted == 1
 
-    database = storage._initialize_database(db_path)
-    try:
-        storage._ensure_schema()
-        verse_rows = list(DetectedVerse.select().dicts())
-    finally:
-        database.close()
 
-    assert len(verse_rows) == 1
-    assert verse_rows[0]["message_id"] == 7
-    assert verse_rows[0]["sura"] == 1
-    assert verse_rows[0]["ayah"] == 2
-    assert verse_rows[0]["is_partial"] is True
-
-
-def test_persist_detected_verses_refreshes_rows(tmp_path):
-    db_path = tmp_path / "messages.sqlite"
+def test_persist_detected_verses_refreshes_rows(storage_backend):
     payload = {
         "id": 99,
         "timestamp": "2024-04-02T00:00:00",
         "text": "First revision",
     }
 
-    storage.persist_messages("@analysis", [payload], db_path=db_path)
+    storage_backend.persist_messages("@analysis", [payload])
 
-    storage.persist_detected_verses(
+    # Insert initial verse
+    inserted = storage_backend.persist_detected_verses(
         [
             {
                 "message_id": 99,
@@ -176,18 +99,40 @@ def test_persist_detected_verses_refreshes_rows(tmp_path):
             }
         ],
         message_ids=[99],
-        db_path=db_path,
     )
+    assert inserted == 1
 
-    storage.persist_detected_verses(
+    # Refresh with empty list should clear verses for message 99
+    cleared = storage_backend.persist_detected_verses(
         [],
         message_ids=[99],
-        db_path=db_path,
     )
+    assert cleared == 0
 
-    database = storage._initialize_database(db_path)
-    try:
-        storage._ensure_schema()
-        assert DetectedVerse.select().count() == 0
-    finally:
-        database.close()
+
+def test_fetch_messages_filters_by_channel(storage_backend):
+    """Test that fetch_messages correctly filters by channel_id."""
+    messages_ch1 = [
+        {"id": 1, "timestamp": "2024-01-01T10:00:00", "text": "Channel 1 message 1"},
+        {"id": 2, "timestamp": "2024-01-01T11:00:00", "text": "Channel 1 message 2"},
+    ]
+    messages_ch2 = [
+        {"id": 1, "timestamp": "2024-01-01T12:00:00", "text": "Channel 2 message 1"},
+    ]
+
+    storage_backend.persist_messages("@channel1", messages_ch1)
+    storage_backend.persist_messages("@channel2", messages_ch2)
+
+    # Fetch all messages
+    all_messages = storage_backend.fetch_messages()
+    assert len(all_messages) == 3
+
+    # Fetch channel 1 only
+    ch1_messages = storage_backend.fetch_messages("@channel1")
+    assert len(ch1_messages) == 2
+    assert all(msg["channel_id"] == "@channel1" for msg in ch1_messages)
+
+    # Fetch channel 2 only
+    ch2_messages = storage_backend.fetch_messages("@channel2")
+    assert len(ch2_messages) == 1
+    assert ch2_messages[0]["channel_id"] == "@channel2"

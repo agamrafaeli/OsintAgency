@@ -12,7 +12,7 @@
 
 * Collector: `collector.py` implements both test and live Telegram clients, each supporting optional offset_date for bounded message fetching.
 
-* Storage: `schema.py` defines Peewee models that store messages in SQLite, keyed by channel and message ID to prevent duplicates.
+* Storage: `osintagency/storage/` provides a modular storage layer. `schema.py` defines Peewee models for the default SQLite backend.
 
 * Enrichment: `enrichment.py` processes stored messages and generates per-channel and keyword summary JSON files.
 
@@ -47,14 +47,17 @@ This document now focuses on the system overview and component responsibilities.
 - The detector depends on its own `dfiles/` data bundle and matching routines, so aligning ingestion hooks with that module keeps the verse-detection logic centralized.
 
 ## Storage Interactions
-- `osintagency/storage.py` wires the detector output into Peewee so each stored message includes both its raw payload and the derived `DetectedVerse` rows needed for downstream tensor analysis.
-- The storage layer now exposes `persist_detected_verses`, which normalizes detections, wipes stale rows for each processed message id, and bulk inserts replacements within a single transaction, allowing other enrichers to reuse the same code path.
-- Keep this document updated when ingestion hooks or schema changes (e.g., `semantic_ideals`) touch the enrichment/storage boundary to maintain architectural clarity.
+- `osintagency/storage` exposes a facade that delegates to a configured backend (defaulting to `PeeweeStorage` backed by SQLite).
+- The storage interface (`StorageBackend`) defines `persist_messages`, `fetch_messages`, and `persist_detected_verses`.
+- `PeeweeStorage` (in `osintagency/storage/backends/peewee_backend.py`) implements this interface using Peewee and SQLite.
+- Data normalization logic lives in `osintagency/storage/normalization.py`, keeping backend implementations focused on database operations.
+- The storage layer normalizes detections, wipes stale rows for each processed message id, and bulk inserts replacements within a single transaction.
+- New storage backends can be added by implementing the `StorageBackend` interface without modifying existing code.
 
 ## Module Boundaries & Code Standards
 
 ### Max Source-File Size
-- **Recommended Limit**: ~300 lines or 15KB.
+- **Recommended Limit**: ~200 lines or 10KB.
 - **Goal**: Maintain readability and ease of review.
 - **Restructuring Heuristics**:
     - If a file exceeds this limit, consider splitting it into smaller, more focused modules.
