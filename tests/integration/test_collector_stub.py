@@ -7,6 +7,7 @@ import pytest
 
 from osintagency import storage
 from osintagency.schema import DetectedVerse
+from osintagency.storage.utils import initialize_database
 
 
 @pytest.fixture(autouse=True)
@@ -170,9 +171,11 @@ def test_collect_messages_runs_quran_enrichment(tmp_path):
 
     assert outcome.stored_messages == 1
 
-    database = storage._initialize_database(db_path)
+    database = initialize_database(db_path)
     try:
-        storage._ensure_schema()
+        from osintagency.storage.backends.peewee_backend import PeeweeStorage
+        backend = PeeweeStorage(db_path)
+        backend._ensure_schema()
         verse_rows = list(DetectedVerse.select().dicts())
     finally:
         database.close()

@@ -2,6 +2,7 @@ from typing import Iterable, Mapping
 import os
 
 from .factory import get_storage_backend
+from .utils import initialize_database, resolve_db_path
 
 # Facade functions to maintain backward compatibility
 

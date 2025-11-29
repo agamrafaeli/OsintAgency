@@ -1,6 +1,7 @@
 from osintagency import storage
 from osintagency.schema import DetectedVerse
 from osintagency.services import quran_detector
+from osintagency.storage.utils import initialize_database
 
 
 def test_detect_verses_returns_empty_when_no_quote():
@@ -48,9 +49,11 @@ def test_detect_verses_enriches_multiple_quotes(tmp_path):
         db_path=db_path,
     )
 
-    database = storage._initialize_database(db_path)
+    database = initialize_database(db_path)
     try:
-        storage._ensure_schema()
+        from osintagency.storage.backends.peewee_backend import PeeweeStorage
+        backend = PeeweeStorage(db_path)
+        backend._ensure_schema()
         with database.atomic():
             DetectedVerse.insert_many(detected).execute()
 

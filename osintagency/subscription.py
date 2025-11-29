@@ -10,7 +10,7 @@ from pathlib import Path
 from peewee import EXCLUDED
 
 from .schema import Subscription, database_proxy
-from .storage import _initialize_database, resolve_db_path
+from .storage import initialize_database, resolve_db_path
 
 
 def add_subscription(
@@ -35,7 +35,7 @@ def add_subscription(
     target_path = resolve_db_path(db_path)
     target_path.parent.mkdir(parents=True, exist_ok=True)
 
-    database = _initialize_database(target_path)
+    database = initialize_database(target_path)
 
     # Prepare subscription data
     added_at = datetime.now(timezone.utc).isoformat()
@@ -82,7 +82,7 @@ def get_subscriptions(
         List of subscription dictionaries
     """
     target_path = resolve_db_path(db_path)
-    database = _initialize_database(target_path)
+    database = initialize_database(target_path)
 
     with database.connection_context():
         _ensure_schema()
@@ -127,7 +127,7 @@ def update_subscription(
         True if subscription was updated, False if not found
     """
     target_path = resolve_db_path(db_path)
-    database = _initialize_database(target_path)
+    database = initialize_database(target_path)
 
     with database.atomic():
         _ensure_schema()
@@ -175,7 +175,7 @@ def remove_subscription(
         True if subscription was removed, False if not found
     """
     target_path = resolve_db_path(db_path)
-    database = _initialize_database(target_path)
+    database = initialize_database(target_path)
 
     with database.atomic():
         _ensure_schema()

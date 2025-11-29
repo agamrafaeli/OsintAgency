@@ -14,16 +14,15 @@ from osintagency.storage.normalization import (
     normalize_detected_verses,
     normalize_message,
 )
+from osintagency.storage.utils import initialize_database, resolve_db_path
 
-DEFAULT_DB_FILENAME = "messages.sqlite3"
 
 class PeeweeStorage(StorageBackend):
     """Peewee-backed persistence for raw Telegram messages."""
 
-    _active_db_path: Path | None = None
 
     def __init__(self, db_path: str | os.PathLike[str] | None = None):
-        self.db_path = self._resolve_db_path(db_path)
+        self.db_path = resolve_db_path(db_path)
 
     def persist_messages(
         self,
@@ -37,7 +36,7 @@ class PeeweeStorage(StorageBackend):
             normalize_message(payload) for payload in messages
         ]
 
-        database = self._initialize_database()
+        database = initialize_database(self.db_path)
 
         if not message_buffer:
             self._ensure_schema()
@@ -79,7 +78,7 @@ class PeeweeStorage(StorageBackend):
         channel_id: str | None = None,
     ) -> list[dict[str, object]]:
         """Return stored messages ordered by message id for verification and analytics."""
-        database = self._initialize_database()
+        database = initialize_database(self.db_path)
         with database.connection_context():
             self._ensure_schema()
             query = StoredMessage.select().order_by(StoredMessage.message_id)
@@ -105,7 +104,7 @@ class PeeweeStorage(StorageBackend):
         message_ids: Iterable[int | str] | None = None,
     ) -> int:
         """Upsert detected verse rows independently from message storage."""
-        database = self._initialize_database()
+        database = initialize_database(self.db_path)
 
         normalized_rows, refresh_ids = normalize_detected_verses(
             detected_verses, message_ids
@@ -130,30 +129,9 @@ class PeeweeStorage(StorageBackend):
         database.close()
         return len(normalized_rows)
 
-    def _resolve_db_path(
-        self,
-        override: str | os.PathLike[str] | None,
-    ) -> Path:
-        if override is not None:
-            return Path(override)
-        env_override = os.getenv("OSINTAGENCY_DB_PATH")
-        if env_override:
-            return Path(env_override)
-        return Path("data") / DEFAULT_DB_FILENAME
 
-    def _initialize_database(self) -> SqliteDatabase:
-        should_initialize = database_proxy.obj is None or PeeweeStorage._active_db_path != self.db_path
-        if should_initialize:
-            database = SqliteDatabase(
-                self.db_path,
-                pragmas={"journal_mode": "wal", "foreign_keys": 1},
-            )
-            database_proxy.initialize(database)
-            PeeweeStorage._active_db_path = self.db_path
 
-        database = database_proxy.obj
-        database.connect(reuse_if_open=True)
-        return database
+
 
     def _ensure_schema(self) -> None:
         database = database_proxy.obj

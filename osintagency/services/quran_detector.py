@@ -549,10 +549,8 @@ class qMatcherAnnotater():
         self.minLen = 3                                   #minimum acceptable match length 
         addAyat(str(data_dir / "quran-simple.txt"), suras, self.all,self.qOrig,self.qNorm, self.ambig, self.minLen,self.stops)
         self.besm = 'بسم الله الرحمن الرحيم'
-        #Expand this list for any verses that should not be matched if they appear alone 
+        #Expand this list for any verses that should not be matched if they appear alone
         self.stopVerses = [self.besm, 'الله ونعم الوكيل', 'الحمد لله' ]
-
-        print("Done loading..  ")
 
 
     def getStopPercentage(self, inStr):
