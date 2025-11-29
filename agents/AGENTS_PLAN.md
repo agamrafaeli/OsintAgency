@@ -21,9 +21,6 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-- Wire into Collection
-  Add forward detection call in `collect_messages()` after verse detection. Call `_detect_forwards_for_messages()` then `persist_forwarded_channels()` following the enrichment pattern documented in `agents/arch/AGENTS_ARCH_ENRICHMENT.md`.
-  End-to-end test: Collect messages with forwards and verify both messages and forward references are persisted.
 
 - Query Channels-to-Review
   Add `fetch_forwarded_channels()` method to storage interface returning aggregated channel references sorted by frequency. Implement in PeeweeStorage.

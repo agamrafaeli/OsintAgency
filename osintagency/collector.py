@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import List, Protocol
 
 from .config import TelegramConfig, load_telegram_config
-from .storage import persist_detected_verses, persist_messages, resolve_db_path
+from .storage import persist_detected_verses, persist_forwarded_channels, persist_messages, resolve_db_path
 from .services import forward_detector, quran_detector
 
 
@@ -200,6 +200,7 @@ def collect_messages(
         target_channel, limit, offset_date=offset_date
     )
     detected_verses = _detect_verses_for_messages(messages)
+    detected_forwards = _detect_forwards_for_messages(messages)
     stored = persist_messages(
         target_channel,
         messages,
@@ -207,6 +208,11 @@ def collect_messages(
     )
     persist_detected_verses(
         detected_verses,
+        message_ids=[message["id"] for message in messages],
+        db_path=resolved_path,
+    )
+    persist_forwarded_channels(
+        detected_forwards,
         message_ids=[message["id"] for message in messages],
         db_path=resolved_path,
     )

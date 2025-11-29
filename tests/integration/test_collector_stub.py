@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from osintagency import storage
-from osintagency.schema import DetectedVerse
+from osintagency.schema import DetectedVerse, ForwardedFrom
 from osintagency.storage.utils import initialize_database
 
 
@@ -182,3 +182,51 @@ def test_collect_messages_runs_quran_enrichment(tmp_path):
 
     assert verse_rows, "Expected verse detection rows to be persisted"
     assert {row["message_id"] for row in verse_rows} == {501}
+
+
+def test_collect_messages_runs_forward_enrichment(tmp_path):
+    from osintagency.collector import collect_messages
+
+    class ForwardClient:
+        requires_auth = False
+
+        def fetch_messages(self, channel_id, limit, offset_date=None):  # noqa: D401
+            return [
+                {
+                    "id": 601,
+                    "timestamp": "2024-06-15T12:00:00",
+                    "text": "Forwarded message",
+                    "fwd_from": {
+                        "from_id": {
+                            "_": "PeerChannel",
+                            "channel_id": 1234567890
+                        },
+                        "channel_post": 42
+                    }
+                }
+            ]
+
+    db_path = tmp_path / "collector.sqlite"
+
+    outcome = collect_messages(
+        limit=1,
+        channel_id="@testforward",
+        telegram_client=ForwardClient(),
+        db_path=db_path,
+    )
+
+    assert outcome.stored_messages == 1
+
+    database = initialize_database(db_path)
+    try:
+        from osintagency.storage.backends.peewee_backend import PeeweeStorage
+        backend = PeeweeStorage(db_path)
+        backend._ensure_schema()
+        forward_rows = list(ForwardedFrom.select().dicts())
+    finally:
+        database.close()
+
+    assert forward_rows, "Expected forward detection rows to be persisted"
+    assert {row["message_id"] for row in forward_rows} == {601}
+    assert forward_rows[0]["source_channel_id"] == 1234567890
+    assert forward_rows[0]["source_message_id"] == 42

@@ -34,3 +34,13 @@ def persist_detected_verses(
     """Upsert detected verse rows independently from message storage."""
     backend = get_storage_backend(db_path=db_path)
     return backend.persist_detected_verses(detected_verses, message_ids=message_ids)
+
+def persist_forwarded_channels(
+    forwarded_channels: Iterable[Mapping[str, object]],
+    *,
+    message_ids: Iterable[int | str] | None = None,
+    db_path: str | os.PathLike[str] | None = None,
+) -> int:
+    """Upsert forwarded channel rows independently from message storage."""
+    backend = get_storage_backend(db_path=db_path)
+    return backend.persist_forwarded_channels(forwarded_channels, message_ids=message_ids)
