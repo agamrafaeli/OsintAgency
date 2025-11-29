@@ -41,3 +41,8 @@ class StorageBackend(ABC):
     ) -> int:
         """Upsert forwarded channel references independently from message storage."""
         pass
+
+    @abstractmethod
+    def fetch_forwarded_channels(self) -> list[dict[str, object]]:
+        """Return aggregated channel references sorted by frequency (reference count descending)."""
+        pass

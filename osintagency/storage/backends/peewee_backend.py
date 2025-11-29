@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from typing import Iterable, Mapping, MutableMapping
 
-from peewee import EXCLUDED, SqliteDatabase
+from peewee import EXCLUDED, SqliteDatabase, fn
 
 from osintagency.schema import (
     DetectedVerse,
@@ -199,7 +199,29 @@ class PeeweeStorage(StorageBackend):
         database.close()
         return len(normalized_rows)
 
-
+    def fetch_forwarded_channels(self) -> list[dict[str, object]]:
+        """Return aggregated channel references sorted by frequency (reference count descending)."""
+        database = initialize_database(self.db_path)
+        with database.connection_context():
+            self._ensure_schema()
+            query = (
+                ForwardedFrom.select(
+                    ForwardedFrom.source_channel_id,
+                    fn.COUNT(ForwardedFrom.id).alias("reference_count"),
+                )
+                .where(ForwardedFrom.source_channel_id.is_null(False))
+                .group_by(ForwardedFrom.source_channel_id)
+                .order_by(fn.COUNT(ForwardedFrom.id).desc())
+            )
+            results: list[dict[str, object]] = [
+                {
+                    "source_channel_id": record.source_channel_id,
+                    "reference_count": record.reference_count,
+                }
+                for record in query
+            ]
+        database.close()
+        return results
 
     def _ensure_schema(self) -> None:
         database = database_proxy.obj

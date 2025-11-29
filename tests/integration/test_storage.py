@@ -198,3 +198,102 @@ def test_persist_forwarded_channels_handles_empty_batch(storage_backend):
     """Test that persist_forwarded_channels handles empty input gracefully."""
     inserted = storage_backend.persist_forwarded_channels([], message_ids=None)
     assert inserted == 0
+
+
+def test_fetch_forwarded_channels_returns_aggregated_list(storage_backend):
+    """Test that fetch_forwarded_channels returns proper channel list with reference counts."""
+    # Create messages
+    messages = [
+        {"id": 1, "timestamp": "2024-05-01T00:00:00", "text": "Message 1"},
+        {"id": 2, "timestamp": "2024-05-01T01:00:00", "text": "Message 2"},
+        {"id": 3, "timestamp": "2024-05-01T02:00:00", "text": "Message 3"},
+        {"id": 4, "timestamp": "2024-05-01T03:00:00", "text": "Message 4"},
+        {"id": 5, "timestamp": "2024-05-01T04:00:00", "text": "Message 5"},
+    ]
+    storage_backend.persist_messages("@channel", messages)
+
+    # Insert forward references - channel 123 appears 3 times, channel 456 appears 2 times
+    forwards = [
+        {
+            "message_id": 1,
+            "source_channel_id": 123,
+            "source_message_id": 100,
+            "detected_at": "2024-05-01T12:00:00+00:00",
+        },
+        {
+            "message_id": 2,
+            "source_channel_id": 123,
+            "source_message_id": 101,
+            "detected_at": "2024-05-01T12:01:00+00:00",
+        },
+        {
+            "message_id": 3,
+            "source_channel_id": 456,
+            "source_message_id": 200,
+            "detected_at": "2024-05-01T12:02:00+00:00",
+        },
+        {
+            "message_id": 4,
+            "source_channel_id": 123,
+            "source_message_id": 102,
+            "detected_at": "2024-05-01T12:03:00+00:00",
+        },
+        {
+            "message_id": 5,
+            "source_channel_id": 456,
+            "source_message_id": 201,
+            "detected_at": "2024-05-01T12:04:00+00:00",
+        },
+    ]
+    storage_backend.persist_forwarded_channels(
+        forwards, message_ids=[1, 2, 3, 4, 5]
+    )
+
+    # Fetch aggregated channel list
+    result = storage_backend.fetch_forwarded_channels()
+
+    # Should return channels sorted by frequency (descending)
+    assert len(result) == 2
+    assert result[0]["source_channel_id"] == 123
+    assert result[0]["reference_count"] == 3
+    assert result[1]["source_channel_id"] == 456
+    assert result[1]["reference_count"] == 2
+
+
+def test_fetch_forwarded_channels_handles_empty_table(storage_backend):
+    """Test that fetch_forwarded_channels returns empty list when no forwards exist."""
+    result = storage_backend.fetch_forwarded_channels()
+    assert result == []
+
+
+def test_fetch_forwarded_channels_filters_null_channels(storage_backend):
+    """Test that fetch_forwarded_channels excludes NULL source_channel_id entries."""
+    messages = [
+        {"id": 1, "timestamp": "2024-05-01T00:00:00", "text": "Message 1"},
+        {"id": 2, "timestamp": "2024-05-01T01:00:00", "text": "Message 2"},
+    ]
+    storage_backend.persist_messages("@channel", messages)
+
+    # Insert forwards with one NULL source_channel_id
+    forwards = [
+        {
+            "message_id": 1,
+            "source_channel_id": None,  # NULL channel
+            "source_message_id": 100,
+            "detected_at": "2024-05-01T12:00:00+00:00",
+        },
+        {
+            "message_id": 2,
+            "source_channel_id": 789,
+            "source_message_id": 200,
+            "detected_at": "2024-05-01T12:01:00+00:00",
+        },
+    ]
+    storage_backend.persist_forwarded_channels(forwards, message_ids=[1, 2])
+
+    result = storage_backend.fetch_forwarded_channels()
+
+    # Should only return the non-NULL channel
+    assert len(result) == 1
+    assert result[0]["source_channel_id"] == 789
+    assert result[0]["reference_count"] == 1

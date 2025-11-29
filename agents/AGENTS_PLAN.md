@@ -21,11 +21,6 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-
-- Query Channels-to-Review
-  Add `fetch_forwarded_channels()` method to storage interface returning aggregated channel references sorted by frequency. Implement in PeeweeStorage.
-  End-to-end test: Query returns proper channel list with reference counts.
-
 - Expose via CLI
   Create `list_suspect_channels_action.py` and add CLI command to display discovered channels from forward references.
   End-to-end test: CLI command returns formatted channel list from stored forward data.
