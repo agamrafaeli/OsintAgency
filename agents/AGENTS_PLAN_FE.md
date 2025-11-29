@@ -21,10 +21,6 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-- Repo Structure Prep
-  Analyze repo structure and update documentation to reflect the new frontend initiative. This prepares the codebase for the new component.
-  End-to-end test: Check `README.md` for frontend section.
-
 - Frontend Stack Selection
   Create architecture documentation and select a lightweight tech stack with user input. This defines the technical foundation.
   End-to-end test: Verify `agents/AGENTS_FRONTEND_ARCH.md` exists.

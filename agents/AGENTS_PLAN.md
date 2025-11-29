@@ -21,16 +21,12 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-- Document Enrichment Pattern
-  Analyze current enrichment orchestration in `collector.py` and document the pattern in `agents/AGENTS_SYSTEM_ARCH.md`. Include: where enrichers are called, timing in pipeline, batch operation pattern, and "New Enricher Checklist".
-  End-to-end test: Documentation clearly explains that enrichers run in collector.py before persistence, not during storage.
-
 - Extract Forward Metadata
   Create `forward_detector.py` service with `detect_forwards(message_id, raw_payload)` function. Parse `forward_from_chat` and `forward_from_message_id` from Telethon payload.
   End-to-end test: Function correctly extracts forward channel references from sample message payloads.
 
 - Add Batch Wrapper
-  Create `_detect_forwards_for_messages(messages)` batch wrapper in `collector.py` following the `_detect_verses_for_messages` pattern. Process all messages and return structured forward references.
+  Create `_detect_forwards_for_messages(messages)` batch wrapper in `collector.py` following the batch wrapper pattern documented in `agents/arch/AGENTS_ARCH_ENRICHMENT.md`. Process all messages and return structured forward references.
   End-to-end test: Batch wrapper processes multiple messages and returns aggregated forward detections.
 
 - Extend Storage Schema
@@ -38,7 +34,7 @@ When planning / executing a step from this plan:
   End-to-end test: Storage backend persists forward references to new table correctly.
 
 - Wire into Collection
-  Add forward detection call in `collect_messages()` after verse detection. Call `_detect_forwards_for_messages()` then `persist_forwarded_channels()` following existing enrichment pattern.
+  Add forward detection call in `collect_messages()` after verse detection. Call `_detect_forwards_for_messages()` then `persist_forwarded_channels()` following the enrichment pattern documented in `agents/arch/AGENTS_ARCH_ENRICHMENT.md`.
   End-to-end test: Collect messages with forwards and verify both messages and forward references are persisted.
 
 - Query Channels-to-Review
@@ -54,12 +50,19 @@ When planning / executing a step from this plan:
 
 When a step is completed:
 
-- **Update README.md**:   
+- **Update README.md**:
    - Changes to main features
    - Add any specific workflows that are main enough
-- **Update AGENTS_XXX.md**:
-   - Update `AGENTS_SYSTEM_ARCH.md` if the step is big enough. If you decide not to update it, verify this with a human and explain your decision.
+
+- **Update Architecture Docs**:
+   - `AGENTS_SYSTEM_ARCH.md` should remain concise (under 100 lines) as a high-level overview
+   - For detailed documentation, create focused files in `agents/arch/AGENTS_ARCH_<TOPIC>.md` (also under 100 lines each)
+   - Update `AGENTS_SYSTEM_ARCH.md` with a brief summary and reference to the detailed doc
+   - Topics should be "philosophical" rather than overly practical (avoid extensive code examples)
+   - Follow the pattern established by `agents/arch/AGENTS_ARCH_ENRICHMENT.md`
+
 - **Confirm with a human** before removing a completed step from this file (agents/AGENTS_PLAN.md); removal is a human-only decision. Once confirmed, **remove the completed step** and, if it was the last step to be removed, write a <PLACEHOLDER> for future writings to this file of new plans.
+
 - **Reorder remaining steps** as needed to keep the plan coherent.
 
 This keeps documentation in sync with actual implementation progress.

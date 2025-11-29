@@ -40,11 +40,9 @@ See `AGENT_SCHEMA_REFERENCE.md` for table definitions and `AGENT_DATA_FLOW.md` f
 This document now focuses on the system overview and component responsibilities. When ingestion, enrichment, or schema code changes, update both `AGENTS_SYSTEM_ARCH.md` and the detailed appendices (`AGENT_SCHEMA_REFERENCE.md`, `AGENT_DATA_FLOW.md`) to keep architecture and deep references in sync.
 
 ## Enrichment Layer
-- Enrichment primarily lives in `osintagency/services/quran_detector.py`, which normalizes Quranic references and emits structured data destined for `DetectedVerse`.
-- `detect_verses` now runs the bundled `qMatcherAnnotater` to find verbatim Quran text (after stripping tashkeel and normalizing variant Arabic forms) and returns dictionaries containing (`message_id`, `sura`, `ayah`, `confidence`, `is_partial`) so enrichment callers can bulk insert into the database without replicating parsing logic.
-- `collector.collect_messages` orchestrates enrichment up front: every fetch batch is routed through `detect_verses`, and the resulting rows are passed into `storage.persist_messages`, which atomically refreshes the associated `DetectedVerse` entries before inserting the new detections.
-- `collector.collect_messages` orchestrates enrichment up front: every fetch batch is routed through `detect_verses`, and the resulting rows are persisted via `storage.persist_detected_verses` after the messages themselves are stored, so enrichment can eventually run as a dedicated workload without touching the ingestion core.
-- The detector depends on its own `dfiles/` data bundle and matching routines, so aligning ingestion hooks with that module keeps the verse-detection logic centralized.
+Enrichment runs in `collector.py` during collection, **not** during storage. The "enrich-then-store" pattern ensures consistent enrichment and keeps logic centralized in the collection pipeline. Enrichers run as batch operations between message fetching and persistence.
+
+See [arch/AGENTS_ARCH_ENRICHMENT.md](arch/AGENTS_ARCH_ENRICHMENT.md) for detailed architecture, batch wrapper pattern, and new enricher checklist.
 
 ## Storage Interactions
 - `osintagency/storage` exposes a facade that delegates to a configured backend (defaulting to `PeeweeStorage` backed by SQLite).
