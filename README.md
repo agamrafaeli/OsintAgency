@@ -6,6 +6,10 @@ OsintAgency monitors Telegram channels for mentions of the Quran and summarizes 
 
 The repository is under active build-out. Follow the plans in `agents/AGENTS_PLAN.md` and the coordination notes in `agents/AGENTS_README.MD` if you are contributing.
 
+## Frontend Dashboard
+
+We are currently building a frontend dashboard to visualize the collected data. The planning and execution status for this initiative can be found in `agents/AGENTS_PLAN_FE.md`.
+
 ## Getting Started
 
 1. Copy `.env.example` to `.env` and fill in the Telegram API credentials. Provide either a user session string or a bot token along with the target channel identifier.

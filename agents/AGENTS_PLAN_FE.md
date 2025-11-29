@@ -21,33 +21,37 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-- Document Enrichment Pattern
-  Analyze current enrichment orchestration in `collector.py` and document the pattern in `agents/AGENTS_SYSTEM_ARCH.md`. Include: where enrichers are called, timing in pipeline, batch operation pattern, and "New Enricher Checklist".
-  End-to-end test: Documentation clearly explains that enrichers run in collector.py before persistence, not during storage.
+- Repo Structure Prep
+  Analyze repo structure and update documentation to reflect the new frontend initiative. This prepares the codebase for the new component.
+  End-to-end test: Check `README.md` for frontend section.
 
-- Extract Forward Metadata
-  Create `forward_detector.py` service with `detect_forwards(message_id, raw_payload)` function. Parse `forward_from_chat` and `forward_from_message_id` from Telethon payload.
-  End-to-end test: Function correctly extracts forward channel references from sample message payloads.
+- Frontend Stack Selection
+  Create architecture documentation and select a lightweight tech stack with user input. This defines the technical foundation.
+  End-to-end test: Verify `agents/AGENTS_FRONTEND_ARCH.md` exists.
 
-- Add Batch Wrapper
-  Create `_detect_forwards_for_messages(messages)` batch wrapper in `collector.py` following the `_detect_verses_for_messages` pattern. Process all messages and return structured forward references.
-  End-to-end test: Batch wrapper processes multiple messages and returns aggregated forward detections.
+- Design System Definition
+  Define and document the visual language and design system. This ensures a consistent premium aesthetic.
+  End-to-end test: Verify `agents/AGENTS_FRONTEND_DESIGN.md` exists.
 
-- Extend Storage Schema
-  Add `ForwardedFrom` table in Peewee schema with fields: `message_id` (FK), `source_channel_id`, `detected_at`. Implement `persist_forwarded_channels()` in storage backend.
-  End-to-end test: Storage backend persists forward references to new table correctly.
+- Initialize Frontend App
+  Scaffold the application and set up basic tooling. This creates the starting point for development.
+  End-to-end test: Verify frontend build script runs.
 
-- Wire into Collection
-  Add forward detection call in `collect_messages()` after verse detection. Call `_detect_forwards_for_messages()` then `persist_forwarded_channels()` following existing enrichment pattern.
-  End-to-end test: Collect messages with forwards and verify both messages and forward references are persisted.
+- Create API Server
+  Implement a server to expose data and CLI actions. This connects the frontend to the backend logic.
+  End-to-end test: Verify API responds to health check.
 
-- Query Channels-to-Review
-  Add `fetch_forwarded_channels()` method to storage interface returning aggregated channel references sorted by frequency. Implement in PeeweeStorage.
-  End-to-end test: Query returns proper channel list with reference counts.
+- Implement App Layout
+  Build the main application shell with navigation. This establishes the user interface structure.
+  End-to-end test: Verify main layout renders in browser.
 
-- Expose via CLI
-  Create `list_suspect_channels_action.py` and add CLI command to display discovered channels from forward references.
-  End-to-end test: CLI command returns formatted channel list from stored forward data.
+- Develop Channels View
+  Implement the list view for monitored channels. This provides visibility into system targets.
+  End-to-end test: Verify channels list loads data.
+
+- Develop Verses Dashboard
+  Create the dashboard for displaying detected verses. This visualizes the primary output.
+  End-to-end test: Verify verses appear on dashboard.
 
 
 ## Documentation Update Process
