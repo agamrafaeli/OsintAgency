@@ -21,10 +21,6 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-- Expose via CLI
-  Create `list_suspect_channels_action.py` and add CLI command to display discovered channels from forward references.
-  End-to-end test: CLI command returns formatted channel list from stored forward data.
-
 - Refactor collector.py as its too large.
 - Refactor peewee_backend.py as its too large.
 

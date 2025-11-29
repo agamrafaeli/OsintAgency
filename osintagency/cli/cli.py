@@ -6,6 +6,7 @@ import click
 
 from .commands import check_credentials as check_credentials_module
 from .commands import fetch_channel as fetch_channel_module
+from .commands import list_suspect_channels as list_suspect_channels_module
 from .decorators import osintagency_cli_command
 from .setup_commands import setup_group
 from .subscribe_commands import subscribe_group
@@ -99,6 +100,51 @@ def check_credentials_command(
     ctx.exit(exit_code)
 
 
+@click.command(name="list-suspect-channels")
+@click.option(
+    "--db-path",
+    help="Explicit database path override. Falls back to OSINTAGENCY_DB_PATH when omitted.",
+)
+@click.option(
+    "--log-level",
+    default="WARNING",
+    show_default=True,
+    help="Python logging level.",
+)
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["table", "json"], case_sensitive=False),
+    default="table",
+    show_default=True,
+    help="Output format for the channel list.",
+)
+@click.option(
+    "--min-references",
+    type=int,
+    default=1,
+    show_default=True,
+    help="Minimum number of forward references to include a channel.",
+)
+@click.pass_context
+@osintagency_cli_command(log_level_param="log_level")
+def list_suspect_channels_command(
+    ctx: click.Context,
+    db_path: str | None,
+    log_level: str,
+    output_format: str,
+    min_references: int,
+) -> None:
+    """List channels discovered from forward references in collected messages."""
+    exit_code = list_suspect_channels_module.list_suspect_channels_command(
+        db_path=db_path,
+        log_level=log_level,
+        output_format=output_format,
+        min_references=min_references,
+    )
+    ctx.exit(exit_code)
+
+
 @click.group()
 def cli() -> None:
     """OSINT Agency command collection."""
@@ -106,6 +152,7 @@ def cli() -> None:
 
 cli.add_command(fetch_channel_command)
 cli.add_command(check_credentials_command)
+cli.add_command(list_suspect_channels_command)
 cli.add_command(setup_group)
 cli.add_command(subscribe_group)
 
