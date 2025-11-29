@@ -31,3 +31,13 @@ class StorageBackend(ABC):
     ) -> int:
         """Upsert detected verse rows independently from message storage."""
         pass
+
+    @abstractmethod
+    def persist_forwarded_channels(
+        self,
+        forwarded_channels: Iterable[Mapping[str, object]],
+        *,
+        message_ids: Iterable[int | str] | None = None,
+    ) -> int:
+        """Upsert forwarded channel references independently from message storage."""
+        pass

@@ -21,10 +21,6 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-- Extend Storage Schema
-  Add `ForwardedFrom` table in Peewee schema with fields: `message_id` (FK), `source_channel_id`, `detected_at`. Implement `persist_forwarded_channels()` in storage backend.
-  End-to-end test: Storage backend persists forward references to new table correctly.
-
 - Wire into Collection
   Add forward detection call in `collect_messages()` after verse detection. Call `_detect_forwards_for_messages()` then `persist_forwarded_channels()` following the enrichment pattern documented in `agents/arch/AGENTS_ARCH_ENRICHMENT.md`.
   End-to-end test: Collect messages with forwards and verify both messages and forward references are persisted.
@@ -38,6 +34,7 @@ When planning / executing a step from this plan:
   End-to-end test: CLI command returns formatted channel list from stored forward data.
 
 - Refactor collector.py as its too large.
+- Refactor peewee_backend.py as its too large.
 
 
 ## Documentation Update Process

@@ -46,6 +46,17 @@ class DetectedVerse(BaseModel):
         table_name = "detected_verses"
 
 
+class ForwardedFrom(BaseModel):
+    id = AutoField()
+    message_id = IntegerField()
+    source_channel_id = IntegerField(null=True)
+    source_message_id = IntegerField(null=True)
+    detected_at = TextField()
+
+    class Meta:
+        table_name = "forwarded_from"
+
+
 class Subscription(BaseModel):
     channel_id = CharField(primary_key=True)
     name = TextField(null=True)
@@ -62,5 +73,6 @@ __all__ = [
     "BaseModel",
     "StoredMessage",
     "DetectedVerse",
+    "ForwardedFrom",
     "Subscription",
 ]

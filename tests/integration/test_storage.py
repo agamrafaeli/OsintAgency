@@ -136,3 +136,65 @@ def test_fetch_messages_filters_by_channel(storage_backend):
     ch2_messages = storage_backend.fetch_messages("@channel2")
     assert len(ch2_messages) == 1
     assert ch2_messages[0]["channel_id"] == "@channel2"
+
+
+def test_persist_forwarded_channels_inserts_rows(storage_backend):
+    """Test that persist_forwarded_channels creates and populates ForwardedFrom table."""
+    message_payload = {
+        "id": 42,
+        "timestamp": "2024-05-01T00:00:00",
+        "text": "Forwarded message",
+    }
+
+    storage_backend.persist_messages("@channel", [message_payload])
+
+    inserted = storage_backend.persist_forwarded_channels(
+        [
+            {
+                "message_id": 42,
+                "source_channel_id": 1005381772,
+                "source_message_id": 61664,
+                "detected_at": "2024-05-01T12:00:00+00:00",
+            }
+        ],
+        message_ids=[42],
+    )
+    assert inserted == 1
+
+
+def test_persist_forwarded_channels_refreshes_rows(storage_backend):
+    """Test that persist_forwarded_channels deletes old rows before inserting new ones."""
+    payload = {
+        "id": 100,
+        "timestamp": "2024-05-02T00:00:00",
+        "text": "First version",
+    }
+
+    storage_backend.persist_messages("@analysis", [payload])
+
+    # Insert initial forward reference
+    inserted = storage_backend.persist_forwarded_channels(
+        [
+            {
+                "message_id": 100,
+                "source_channel_id": 123456,
+                "source_message_id": 999,
+                "detected_at": "2024-05-02T10:00:00+00:00",
+            }
+        ],
+        message_ids=[100],
+    )
+    assert inserted == 1
+
+    # Refresh with empty list should clear forwards for message 100
+    cleared = storage_backend.persist_forwarded_channels(
+        [],
+        message_ids=[100],
+    )
+    assert cleared == 0
+
+
+def test_persist_forwarded_channels_handles_empty_batch(storage_backend):
+    """Test that persist_forwarded_channels handles empty input gracefully."""
+    inserted = storage_backend.persist_forwarded_channels([], message_ids=None)
+    assert inserted == 0
