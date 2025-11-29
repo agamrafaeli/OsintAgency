@@ -9,7 +9,7 @@ from typing import List, Protocol
 
 from .config import TelegramConfig, load_telegram_config
 from .storage import persist_detected_verses, persist_messages, resolve_db_path
-from .services import quran_detector
+from .services import forward_detector, quran_detector
 
 
 @dataclass(frozen=True)
@@ -149,6 +149,25 @@ def _detect_verses_for_messages(messages: List[dict[str, object]]) -> list[dict[
             detections = quran_detector.detect_verses(
                 message_id=message_id,
                 text=payload.get("text"),
+            )
+        except ValueError:
+            continue
+        if detections:
+            detected_rows.extend(detections)
+    return detected_rows
+
+
+def _detect_forwards_for_messages(messages: List[dict[str, object]]) -> list[dict[str, object]]:
+    """Return forward detections for each message payload."""
+    detected_rows: list[dict[str, object]] = []
+    for payload in messages:
+        message_id = payload.get("id")
+        if message_id is None:
+            continue
+        try:
+            detections = forward_detector.detect_forwards(
+                message_id=message_id,
+                raw_payload=payload,
             )
         except ValueError:
             continue

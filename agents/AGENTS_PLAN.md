@@ -21,11 +21,6 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-
-- Add Batch Wrapper
-  Create `_detect_forwards_for_messages(messages)` batch wrapper in `collector.py` following the batch wrapper pattern documented in `agents/arch/AGENTS_ARCH_ENRICHMENT.md`. Process all messages and return structured forward references.
-  End-to-end test: Batch wrapper processes multiple messages and returns aggregated forward detections.
-
 - Extend Storage Schema
   Add `ForwardedFrom` table in Peewee schema with fields: `message_id` (FK), `source_channel_id`, `detected_at`. Implement `persist_forwarded_channels()` in storage backend.
   End-to-end test: Storage backend persists forward references to new table correctly.
@@ -41,6 +36,8 @@ When planning / executing a step from this plan:
 - Expose via CLI
   Create `list_suspect_channels_action.py` and add CLI command to display discovered channels from forward references.
   End-to-end test: CLI command returns formatted channel list from stored forward data.
+
+- Refactor collector.py as its too large.
 
 
 ## Documentation Update Process
