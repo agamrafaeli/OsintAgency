@@ -21,9 +21,6 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-- Extract Forward Metadata
-  Create `forward_detector.py` service with `detect_forwards(message_id, raw_payload)` function. Parse `forward_from_chat` and `forward_from_message_id` from Telethon payload.
-  End-to-end test: Function correctly extracts forward channel references from sample message payloads.
 
 - Add Batch Wrapper
   Create `_detect_forwards_for_messages(messages)` batch wrapper in `collector.py` following the batch wrapper pattern documented in `agents/arch/AGENTS_ARCH_ENRICHMENT.md`. Process all messages and return structured forward references.
