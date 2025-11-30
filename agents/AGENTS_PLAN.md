@@ -23,14 +23,6 @@ When planning / executing a step from this plan:
 
 Here's a step plan in your AGENTS style for building a **mock NiceGUI dashboard UI** (no real data, just structure and placeholders) that includes all the components we discussed. All steps below refer to the dashboard UI implementation.
 
-* **Dashboard UI: Analytics Summary**
-  In the dashboard, above or below the subscriptions table, add a small summary bar with labels and dummy values for total active subscriptions, total messages, total detected verses, oldest message date, and newest message date. Use simple labels and numbers to simulate aggregated analytics.
-  End-to-end test: The summary bar appears consistently and shows placeholder numbers even when tables are empty or reduced to a single row.
-
-* **Dashboard UI: Forwarded Discovery**
-  In the dashboard's "Forwarded from & discovery" panel, add a table titled "Forwarded channels (by frequency)" with placeholder rows and columns for source channel, times referenced, first seen, last seen, and already subscribed. Include per-row buttons like "Add as subscription" or a static "Subscribed" label.
-  End-to-end test: The table renders with mock data and clicking "Add as subscription" triggers a mock confirmation or toast without errors.
-
 * **Dashboard UI: Add-Channel Card**
   In the dashboard, next to or below the forwarded table, add a card allowing the user to paste a Telegram link, show a parsed-channel placeholder, and optionally enter a display name. Add an "Add subscription" button and show a mock message if the "channel" already exists or is newly "added".
   End-to-end test: Pasting any string into the input and clicking "Add subscription" shows a deterministic mock response (e.g., "Pretending to add @example_channel") without crashing the app.

@@ -106,3 +106,44 @@ def get_mock_analytics_summary():
         "oldest_message_date": "2025-08-20",
         "newest_message_date": "2025-11-30"
     }
+
+
+def get_mock_forwarded_channels():
+    """Get mock data for the forwarded channels table."""
+    return [
+        {
+            "source_channel": "@quran_reflections",
+            "times_referenced": 18,
+            "first_seen": "2025-11-10",
+            "last_seen": "2025-11-29",
+            "already_subscribed": False
+        },
+        {
+            "source_channel": "@islamic_wisdom",
+            "times_referenced": 12,
+            "first_seen": "2025-11-15",
+            "last_seen": "2025-11-30",
+            "already_subscribed": True
+        },
+        {
+            "source_channel": "@hadith_daily",
+            "times_referenced": 9,
+            "first_seen": "2025-11-18",
+            "last_seen": "2025-11-28",
+            "already_subscribed": False
+        },
+        {
+            "source_channel": "@community_news",
+            "times_referenced": 7,
+            "first_seen": "2025-11-12",
+            "last_seen": "2025-11-27",
+            "already_subscribed": False
+        },
+        {
+            "source_channel": "@spiritual_quotes",
+            "times_referenced": 5,
+            "first_seen": "2025-11-20",
+            "last_seen": "2025-11-25",
+            "already_subscribed": True
+        },
+    ]

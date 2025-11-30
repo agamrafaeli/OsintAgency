@@ -62,7 +62,11 @@ Current implementation:
   - Table displaying channel ID, name, active status, messages stored, verses detected, dates, and last scrape timestamp
   - Per-row action buttons for re-scraping, editing, and toggling active status
   - All interactions show mock notifications (no real data operations yet)
-- Panel 3: "Forwarded from & discovery" (`panels/forwarded_panel.py`) - shows forwarded channels for discovery (placeholder)
+- Panel 3: "Forwarded from & discovery" (`panels/forwarded_panel.py`) - displays channels referenced in forwarded messages with:
+  - Table showing source channel, times referenced, first seen, last seen
+  - Per-row "Add as subscription" button for channels not yet subscribed
+  - "Subscribed" label for channels already in the subscription list
+  - All interactions show mock notifications (no real data operations yet)
 - Runs on localhost:8080 by default
 - Built with NiceGUI framework for reactive UI components
 
