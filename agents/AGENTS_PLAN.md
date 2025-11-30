@@ -21,34 +21,30 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-Here’s a step plan in your AGENTS style for a **mock NiceGUI UI** (no real data, just structure and placeholders) that includes all the components we discussed. 
+Here's a step plan in your AGENTS style for building a **mock NiceGUI dashboard UI** (no real data, just structure and placeholders) that includes all the components we discussed. All steps below refer to the dashboard UI implementation.
 
-* **Define Dashboard Layout**
-  Inside the dashboard route, create a vertical layout with three stacked panels: “Top detected verses”, “Subscriptions & scraping”, and “Forwarded from & discovery”. Use containers or cards so each section is visually separated and scrolls on one page.
-  End-to-end test: The dashboard displays three clearly labeled sections one under another, even with no data.
-
-* **Implement Verses Panel**
-  In the “Top detected verses” panel, add a header with title, a time-window dropdown, and a text filter input. Below it, add a table with placeholder rows and columns for sura, ayah, total mentions, distinct channels, first seen, and last seen.
+* **Dashboard UI: Verses Panel**
+  In the dashboard's "Top detected verses" panel, add a header with title, a time-window dropdown, and a text filter input. Below it, add a table with placeholder rows and columns for sura, ayah, total mentions, distinct channels, first seen, and last seen.
   End-to-end test: Selecting a different time window or typing in the filter does not crash and the table with mock rows remains visible.
 
-* **Implement Subscriptions Panel**
-  In the “Subscriptions & scraping” panel, add a horizontal bar with two buttons: “Re-scrape all active channels” and “Full reset & re-scrape” (mock actions only). Under that, add a table with placeholder rows and columns for channel ID, name, active, messages stored, verses detected, first message date, last message date, and last scrape at, plus per-row action buttons.
+* **Dashboard UI: Subscriptions Panel**
+  In the dashboard's "Subscriptions & scraping" panel, add a horizontal bar with two buttons: "Re-scrape all active channels" and "Full reset & re-scrape" (mock actions only). Under that, add a table with placeholder rows and columns for channel ID, name, active, messages stored, verses detected, first message date, last message date, and last scrape at, plus per-row action buttons.
   End-to-end test: Clicking any global or per-row button shows a mock notification (e.g., toast/dialog) but does not perform real work.
 
-* **Implement Analytics Summary**
-  Above or below the subscriptions table, add a small summary bar with labels and dummy values for total active subscriptions, total messages, total detected verses, oldest message date, and newest message date. Use simple labels and numbers to simulate aggregated analytics.
+* **Dashboard UI: Analytics Summary**
+  In the dashboard, above or below the subscriptions table, add a small summary bar with labels and dummy values for total active subscriptions, total messages, total detected verses, oldest message date, and newest message date. Use simple labels and numbers to simulate aggregated analytics.
   End-to-end test: The summary bar appears consistently and shows placeholder numbers even when tables are empty or reduced to a single row.
 
-* **Implement Forwarded Discovery**
-  In the “Forwarded from & discovery” panel, add a table titled “Forwarded channels (by frequency)” with placeholder rows and columns for source channel, times referenced, first seen, last seen, and already subscribed. Include per-row buttons like “Add as subscription” or a static “Subscribed” label.
-  End-to-end test: The table renders with mock data and clicking “Add as subscription” triggers a mock confirmation or toast without errors.
+* **Dashboard UI: Forwarded Discovery**
+  In the dashboard's "Forwarded from & discovery" panel, add a table titled "Forwarded channels (by frequency)" with placeholder rows and columns for source channel, times referenced, first seen, last seen, and already subscribed. Include per-row buttons like "Add as subscription" or a static "Subscribed" label.
+  End-to-end test: The table renders with mock data and clicking "Add as subscription" triggers a mock confirmation or toast without errors.
 
-* **Implement Add-Channel Card**
-  Next to or below the forwarded table, add a card allowing the user to paste a Telegram link, show a parsed-channel placeholder, and optionally enter a display name. Add an “Add subscription” button and show a mock message if the “channel” already exists or is newly “added”.
-  End-to-end test: Pasting any string into the input and clicking “Add subscription” shows a deterministic mock response (e.g., “Pretending to add @example_channel”) without crashing the app.
+* **Dashboard UI: Add-Channel Card**
+  In the dashboard, next to or below the forwarded table, add a card allowing the user to paste a Telegram link, show a parsed-channel placeholder, and optionally enter a display name. Add an "Add subscription" button and show a mock message if the "channel" already exists or is newly "added".
+  End-to-end test: Pasting any string into the input and clicking "Add subscription" shows a deterministic mock response (e.g., "Pretending to add @example_channel") without crashing the app.
 
-* **Add Mock Interactions**
-  Wire all buttons and toggles across the dashboard to simple callbacks that log actions and show small notifications, without touching any database or external services. Ensure error handling is graceful so even invalid input just produces friendly mock messages.
+* **Dashboard UI: Mock Interactions**
+  In the dashboard, wire all buttons and toggles across all panels to simple callbacks that log actions and show small notifications, without touching any database or external services. Ensure error handling is graceful so even invalid input just produces friendly mock messages.
   End-to-end test: A manual click-through of every button, toggle, and input across the dashboard completes without any exceptions and surfaces user-facing notifications for each action.
 
 
