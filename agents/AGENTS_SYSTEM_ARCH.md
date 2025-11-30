@@ -16,7 +16,7 @@
 
 * Enrichment: `enrichment.py` processes stored messages and generates per-channel and keyword summary JSON files.
 
-* Display: `dashboard/` contains static files that visualize the latest summary with counts, highlights, and visibility.
+* Display: `dashboard/` provides a NiceGUI web application for interactive data visualization and channel management.
 
 ## Storage and Display Flow
 ```
@@ -31,13 +31,23 @@
                                                           |
                                                           v
                                            +-----------------------------+
-                                           | Static Metrics Dashboard UI |
+                                           | NiceGUI Web Dashboard       |
                                            +-----------------------------+
 ```
 See `AGENT_SCHEMA_REFERENCE.md` for table definitions and `AGENT_DATA_FLOW.md` for ingestion and enrichment flow. Storage is ephemeral — each run creates a clean SQLite database. No migrations or backward compatibility are required.
 
 ## Documentation Decomposition Notice
 This document now focuses on the system overview and component responsibilities. When ingestion, enrichment, or schema code changes, update both `AGENTS_SYSTEM_ARCH.md` and the detailed appendices (`AGENT_SCHEMA_REFERENCE.md`, `AGENT_DATA_FLOW.md`) to keep architecture and deep references in sync.
+
+## Web Dashboard
+The NiceGUI dashboard (`osintagency/dashboard/`) provides an interactive web interface for visualizing and managing collected data. The dashboard is served via the `osintagency dashboard` CLI command.
+
+Current implementation:
+- Minimal skeleton with `/dashboard` route
+- Runs on localhost:8080 by default
+- Built with NiceGUI framework for reactive UI components
+
+See the step-by-step plan in `AGENTS_PLAN.md` for ongoing dashboard feature development.
 
 ## Enrichment Layer
 Enrichment runs in `collector.py` during collection, **not** during storage. The "enrich-then-store" pattern ensures consistent enrichment and keeps logic centralized in the collection pipeline. Enrichers run as batch operations between message fetching and persistence.

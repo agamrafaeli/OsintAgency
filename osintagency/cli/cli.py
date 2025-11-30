@@ -7,6 +7,7 @@ import click
 from .commands import check_credentials as check_credentials_module
 from .commands import fetch_channel as fetch_channel_module
 from .commands import list_suspect_channels as list_suspect_channels_module
+from .commands.run_dashboard import dashboard
 from .decorators import osintagency_cli_command
 from .setup_commands import setup_group
 from .subscribe_commands import subscribe_group
@@ -153,6 +154,7 @@ def cli() -> None:
 cli.add_command(fetch_channel_command)
 cli.add_command(check_credentials_command)
 cli.add_command(list_suspect_channels_command)
+cli.add_command(dashboard)
 cli.add_command(setup_group)
 cli.add_command(subscribe_group)
 

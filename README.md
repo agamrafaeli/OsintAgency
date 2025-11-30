@@ -6,9 +6,21 @@ OsintAgency monitors Telegram channels for mentions of the Quran and summarizes 
 
 The repository is under active build-out. Follow the plans in `agents/AGENTS_PLAN.md` and the coordination notes in `agents/AGENTS_README.MD` if you are contributing.
 
-## Frontend Dashboard
+## Web Dashboard
 
-We are currently building a frontend dashboard to visualize the collected data. The planning and execution status for this initiative can be found in `agents/AGENTS_PLAN_FE.md`.
+A NiceGUI-based web dashboard provides a browser interface for visualizing collected data. Start the dashboard server with:
+
+```bash
+osintagency dashboard
+```
+
+Then open [http://localhost:8080/dashboard](http://localhost:8080/dashboard) in your browser.
+
+Options:
+- `--host`: Bind address (default: 127.0.0.1)
+- `--port`: Port number (default: 8080)
+
+The dashboard is under active development. Planning and execution status can be found in [agents/AGENTS_PLAN.md](agents/AGENTS_PLAN.md).
 
 ## Getting Started
 
