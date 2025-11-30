@@ -14,11 +14,16 @@ A NiceGUI-based web dashboard provides a browser interface for visualizing colle
 osintagency dashboard
 ```
 
-Then open [http://localhost:8080/dashboard](http://localhost:8080/dashboard) in your browser.
+The dashboard will automatically open in your browser at [http://localhost:8080/dashboard](http://localhost:8080/dashboard).
 
 Options:
 - `--host`: Bind address (default: 127.0.0.1)
 - `--port`: Port number (default: 8080)
+
+The dashboard currently displays three main sections:
+- **Top detected verses**: Displays the most frequently mentioned Quran verses across tracked channels
+- **Subscriptions & scraping**: Manages channel subscriptions and scraping operations
+- **Forwarded from & discovery**: Shows channels referenced in forwarded messages for discovering new channels to monitor
 
 The dashboard is under active development. Planning and execution status can be found in [agents/AGENTS_PLAN.md](agents/AGENTS_PLAN.md).
 

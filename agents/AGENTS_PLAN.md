@@ -23,12 +23,6 @@ When planning / executing a step from this plan:
 
 Here’s a step plan in your AGENTS style for a **mock NiceGUI UI** (no real data, just structure and placeholders) that includes all the components we discussed. 
 
----
-
-* **Setup NiceGUI Skeleton**
-  Create a minimal NiceGUI app with a single `/dashboard` route and a basic page container. Ensure the app can be run locally and displays a simple “Dashboard loaded” placeholder.
-  End-to-end test: Running `python main.py` and opening `http://localhost:8080/dashboard` shows a page titled “Dashboard”.
-
 * **Define Dashboard Layout**
   Inside the dashboard route, create a vertical layout with three stacked panels: “Top detected verses”, “Subscriptions & scraping”, and “Forwarded from & discovery”. Use containers or cards so each section is visually separated and scrolls on one page.
   End-to-end test: The dashboard displays three clearly labeled sections one under another, even with no data.

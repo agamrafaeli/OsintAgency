@@ -1,10 +1,37 @@
 """
 NiceGUI dashboard application for OSINT Agency.
 
-This module provides a minimal NiceGUI web application with a single
-/dashboard route displaying a basic placeholder interface.
+This module provides a minimal NiceGUI web application with dashboard
+route displaying analysis interface.
 """
 from nicegui import ui
+
+
+@ui.page("/")
+def index_page():
+    """Root route - redirects to dashboard."""
+    ui.navigate.to("/dashboard")
+
+
+@ui.page("/dashboard")
+def dashboard_page():
+    """Dashboard route handler."""
+    ui.label("Dashboard loaded").classes("text-2xl font-bold")
+
+    # Panel 1: Top detected verses
+    with ui.card().classes("w-full"):
+        ui.label("Top detected verses").classes("text-xl font-semibold mb-2")
+        ui.label("(No data yet)").classes("text-gray-500")
+
+    # Panel 2: Subscriptions & scraping
+    with ui.card().classes("w-full"):
+        ui.label("Subscriptions & scraping").classes("text-xl font-semibold mb-2")
+        ui.label("(No data yet)").classes("text-gray-500")
+
+    # Panel 3: Forwarded from & discovery
+    with ui.card().classes("w-full"):
+        ui.label("Forwarded from & discovery").classes("text-xl font-semibold mb-2")
+        ui.label("(No data yet)").classes("text-gray-500")
 
 
 def create_dashboard_app():
@@ -14,15 +41,7 @@ def create_dashboard_app():
     Returns:
         The configured NiceGUI app instance.
     """
-
-    @ui.page("/dashboard")
-    def dashboard_page():
-        """Dashboard route handler."""
-        ui.page_title("Dashboard")
-
-        with ui.column().classes("w-full p-4"):
-            ui.label("Dashboard loaded").classes("text-2xl font-bold")
-
+    # Page routes are registered at module level via @ui.page decorator
     return ui
 
 

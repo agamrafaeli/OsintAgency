@@ -43,7 +43,10 @@ This document now focuses on the system overview and component responsibilities.
 The NiceGUI dashboard (`osintagency/dashboard/`) provides an interactive web interface for visualizing and managing collected data. The dashboard is served via the `osintagency dashboard` CLI command.
 
 Current implementation:
-- Minimal skeleton with `/dashboard` route
+- Three-panel vertical layout with visually separated sections
+- Panel 1: "Top detected verses" - displays most frequently mentioned Quran verses
+- Panel 2: "Subscriptions & scraping" - manages channel subscriptions and scraping operations
+- Panel 3: "Forwarded from & discovery" - shows forwarded channels for discovery
 - Runs on localhost:8080 by default
 - Built with NiceGUI framework for reactive UI components
 
