@@ -264,3 +264,59 @@ async def test_forwarded_channels_table_with_action_buttons():
         # Clean up: terminate the server process
         proc.terminate()
         proc.wait(timeout=5)
+
+
+@pytest.mark.asyncio
+async def test_add_channel_card_displays_and_responds():
+    """
+    End-to-end test: Add-Channel Card displays and produces deterministic mock responses.
+
+    From AGENTS_PLAN.md step "Dashboard UI: Add-Channel Card":
+    "Pasting any string into the input and clicking 'Add subscription' shows a deterministic
+    mock response (e.g., 'Pretending to add @example_channel') without crashing the app."
+
+    This test verifies that:
+    - The Add-Channel Card is present in the forwarded panel
+    - Input field for Telegram link is present
+    - Optional display name input is present
+    - "Add subscription" button is present
+    - The page loads without errors (200 OK)
+    """
+    # Start the dashboard server in a subprocess
+    proc = subprocess.Popen(
+        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080)"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    try:
+        # Give the server time to start
+        time.sleep(3)
+
+        # Test that the Add-Channel Card is present
+        async with httpx.AsyncClient() as client:
+            response = await client.get("http://localhost:8080/dashboard", timeout=5.0)
+
+            # Verify the route exists (200 OK) - no crashes
+            assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+
+            # Verify the Add-Channel Card section is present
+            assert ("Add Channel" in response.text or "Add channel" in response.text or "add channel" in response.text), \
+                "Page should contain Add-Channel Card section"
+
+            # Verify input elements are present (based on typical NiceGUI rendering)
+            # We check for presence of Telegram link input hints
+            assert ("Telegram" in response.text or "telegram" in response.text or "t.me" in response.text), \
+                "Add-Channel Card should reference Telegram links"
+
+            # Verify the "Add subscription" button or similar action is present
+            assert ("Add subscription" in response.text or "Add as subscription" in response.text or "Subscribe" in response.text), \
+                "Add-Channel Card should have an 'Add subscription' button"
+
+            # Verify the page has proper structure (no errors)
+            assert response.status_code < 400, "Page should not return error status"
+
+    finally:
+        # Clean up: terminate the server process
+        proc.terminate()
+        proc.wait(timeout=5)

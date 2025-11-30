@@ -66,6 +66,11 @@ Current implementation:
   - Table showing source channel, times referenced, first seen, last seen
   - Per-row "Add as subscription" button for channels not yet subscribed
   - "Subscribed" label for channels already in the subscription list
+  - Add-Channel Card below the table for manual channel subscription with:
+    - Telegram link input field (supports t.me/channel, @channel, or plain channel name formats)
+    - Real-time parsed channel identifier display
+    - Optional display name input
+    - "Add subscription" button with deterministic mock responses (checks for already-subscribed channels)
   - All interactions show mock notifications (no real data operations yet)
 - Runs on localhost:8080 by default
 - Built with NiceGUI framework for reactive UI components

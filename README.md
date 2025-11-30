@@ -23,7 +23,7 @@ Options:
 The dashboard currently displays three main sections:
 - **Top detected verses**: Displays the most frequently mentioned Quran verses across tracked channels with filtering and time window controls
 - **Subscriptions & scraping**: Manages channel subscriptions with a table view showing channel details, statistics, and action buttons for re-scraping and editing (mock functionality)
-- **Forwarded from & discovery**: Shows a table of channels referenced in forwarded messages sorted by frequency, with "Add as subscription" buttons to quickly subscribe to discovered channels (mock functionality)
+- **Forwarded from & discovery**: Shows a table of channels referenced in forwarded messages sorted by frequency, with "Add as subscription" buttons to quickly subscribe to discovered channels. Also includes an "Add channel" card that lets users manually enter a Telegram link, shows the parsed channel identifier, and optionally set a display name before adding a subscription (mock functionality)
 
 The dashboard is under active development. Planning and execution status can be found in [agents/AGENTS_PLAN.md](agents/AGENTS_PLAN.md).
 
