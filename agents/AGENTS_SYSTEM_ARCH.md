@@ -55,6 +55,8 @@ Current implementation:
   - Total detected verses
   - Oldest and newest message dates
   - Uses placeholder/mock data from `mock_data.py`
+  - Interactive tooltips on each metric card explaining their meaning
+  - Clickable cards that show notifications (future: filter/navigate based on metric)
 - Three-panel vertical layout with visually separated sections
 - Panel 1: "Top detected verses" (`panels/verses_panel.py`) - displays most frequently mentioned Quran verses with time window filter and search
 - Panel 2: "Subscriptions & scraping" (`panels/subscriptions_panel.py`) - manages channel subscriptions with:

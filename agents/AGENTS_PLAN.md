@@ -22,9 +22,22 @@ When planning / executing a step from this plan:
 
 Here's a step plan in your AGENTS style for building a **mock NiceGUI dashboard UI** (no real data, just structure and placeholders) that includes all the components we discussed. All steps below refer to the dashboard UI implementation.
 
-* **Dashboard UI: Mock Interactions**
-  In the dashboard, wire all buttons and toggles across all panels to simple callbacks that log actions and show small notifications, without touching any database or external services. Ensure error handling is graceful so even invalid input just produces friendly mock messages.
-  End-to-end test: A manual click-through of every button, toggle, and input across the dashboard completes without any exceptions and surfaces user-facing notifications for each action.
+
+* **Dashboard UI: Verses Panel Interactions**
+  In the Top Detected Verses panel, wire the time window dropdown and filter input to callbacks that log selections and update the table with filtered mock data. Ensure the table displays placeholder verse data and handles empty filter results gracefully.
+  End-to-end test: Changing the time window dropdown and entering filter text updates the verses table with appropriate mock data and shows notifications for user actions.
+
+* **Dashboard UI: Subscriptions Panel Interactions**
+  In the Subscriptions & Scraping panel, wire the "Re-scrape all" and "Full reset" buttons plus all per-row actions (Re-scrape, Edit, Activate/Deactivate) to callbacks that log actions and show notifications. Ensure the table displays mock subscription data and all buttons provide user feedback.
+  End-to-end test: Clicking any button in the Subscriptions panel (global or per-row) triggers appropriate notifications and updates UI state without exceptions.
+
+* **Dashboard UI: Forwarded Channels Interactions**
+  In the Forwarded Channels table within the Forwarded from & Discovery panel, wire the per-row "Add as subscription" buttons to callbacks that log actions, show notifications, and toggle button state to "Subscribed" label. Display mock forwarded channel data in the table.
+  End-to-end test: Clicking "Add as subscription" on any forwarded channel row shows a notification and changes the button to a "Subscribed" label without exceptions.
+
+* **Dashboard UI: Add Channel Interactions**
+  In the Add Channel card, wire the Telegram link input to parse and display the channel name reactively, and wire the "Add subscription" button to validate input, log the action, show notifications for success/error cases (duplicate, invalid format, empty), and reset the form on success.
+  End-to-end test: Entering various Telegram links (valid, invalid, duplicate, empty) and clicking "Add subscription" produces appropriate validation messages and notifications without exceptions.
 
 
 
