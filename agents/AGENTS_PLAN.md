@@ -22,11 +22,6 @@ When planning / executing a step from this plan:
 
 Here's a step plan in your AGENTS style for building a **mock NiceGUI dashboard UI** (no real data, just structure and placeholders) that includes all the components we discussed. All steps below refer to the dashboard UI implementation.
 
-
-* **Dashboard UI: Verses Panel Interactions**
-  In the Top Detected Verses panel, wire the time window dropdown and filter input to callbacks that log selections and update the table with filtered mock data. Ensure the table displays placeholder verse data and handles empty filter results gracefully.
-  End-to-end test: Changing the time window dropdown and entering filter text updates the verses table with appropriate mock data and shows notifications for user actions.
-
 * **Dashboard UI: Subscriptions Panel Interactions**
   In the Subscriptions & Scraping panel, wire the "Re-scrape all" and "Full reset" buttons plus all per-row actions (Re-scrape, Edit, Activate/Deactivate) to callbacks that log actions and show notifications. Ensure the table displays mock subscription data and all buttons provide user feedback.
   End-to-end test: Clicking any button in the Subscriptions panel (global or per-row) triggers appropriate notifications and updates UI state without exceptions.

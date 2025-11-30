@@ -5,9 +5,21 @@ This module centralizes all mock/placeholder data used across dashboard panels.
 """
 
 
-def get_mock_verses():
-    """Get mock data for the verses table."""
-    return [
+def get_mock_verses(time_window="All time", filter_text=""):
+    """
+    Get mock data for the verses table with optional filtering.
+
+    Args:
+        time_window: Filter by time range (Last 24h, Last 7d, Last 30d, All time)
+        filter_text: Filter by sura or ayah number (partial match)
+
+    Returns:
+        List of verse dictionaries matching the filters
+    """
+    from datetime import datetime, timedelta
+
+    # Base mock data
+    all_verses = [
         {
             "sura": 1,
             "ayah": 1,
@@ -49,6 +61,34 @@ def get_mock_verses():
             "last_seen": "2025-11-25"
         },
     ]
+
+    # Filter by time window
+    if time_window != "All time":
+        today = datetime(2025, 11, 30)  # Mock "today" for consistent testing
+
+        if time_window == "Last 24h":
+            cutoff_date = today - timedelta(days=1)
+        elif time_window == "Last 7d":
+            cutoff_date = today - timedelta(days=7)
+        elif time_window == "Last 30d":
+            cutoff_date = today - timedelta(days=30)
+        else:
+            cutoff_date = datetime.min
+
+        cutoff_str = cutoff_date.strftime("%Y-%m-%d")
+        all_verses = [
+            v for v in all_verses
+            if v["last_seen"] >= cutoff_str
+        ]
+
+    # Filter by text (search in sura or ayah)
+    if filter_text:
+        all_verses = [
+            v for v in all_verses
+            if filter_text in str(v["sura"]) or filter_text in str(v["ayah"])
+        ]
+
+    return all_verses
 
 
 def get_mock_subscriptions():

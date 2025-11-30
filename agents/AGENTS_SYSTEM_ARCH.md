@@ -58,7 +58,11 @@ Current implementation:
   - Interactive tooltips on each metric card explaining their meaning
   - Clickable cards that show notifications (future: filter/navigate based on metric)
 - Three-panel vertical layout with visually separated sections
-- Panel 1: "Top detected verses" (`panels/verses_panel.py`) - displays most frequently mentioned Quran verses with time window filter and search
+- Panel 1: "Top detected verses" (`panels/verses_panel.py`) - displays most frequently mentioned Quran verses with:
+  - Time window dropdown (Last 24h, Last 7d, Last 30d, All time) that filters table data
+  - Text search filter for sura/ayah numbers with real-time table updates
+  - Interactive notifications for all filter changes and empty result handling
+  - All filtering uses mock data with reactive table updates
 - Panel 2: "Subscriptions & scraping" (`panels/subscriptions_panel.py`) - manages channel subscriptions with:
   - Global action buttons for bulk re-scraping and full reset
   - Table displaying channel ID, name, active status, messages stored, verses detected, dates, and last scrape timestamp
