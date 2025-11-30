@@ -1,6 +1,5 @@
 Plan For Agents (AI-Agent-as-Service Architecture)
 # Planning guidelines for agents using this file
-- Before planning, make sure there exists a `AGENTS_SYSTEM_ARCH.md` file. If not, create it.
 - Step scope should be not super technical, but include references to "parts" of the system
 - Before performing a step assess whether it fits into the format of:
 ```

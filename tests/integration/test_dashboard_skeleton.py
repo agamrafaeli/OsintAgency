@@ -32,7 +32,7 @@ async def test_dashboard_route_with_server():
     """
     # Start the dashboard server in a subprocess
     proc = subprocess.Popen(
-        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080)"],
+        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080, False)"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
@@ -73,7 +73,7 @@ async def test_dashboard_three_panel_layout():
     """
     # Start the dashboard server in a subprocess
     proc = subprocess.Popen(
-        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080)"],
+        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080, False)"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
@@ -120,7 +120,7 @@ async def test_verses_panel_with_controls_and_table():
     """
     # Start the dashboard server in a subprocess
     proc = subprocess.Popen(
-        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080)"],
+        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080, False)"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
@@ -171,7 +171,7 @@ async def test_analytics_summary_bar_displays():
     """
     # Start the dashboard server in a subprocess
     proc = subprocess.Popen(
-        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080)"],
+        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080, False)"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
@@ -227,7 +227,7 @@ async def test_forwarded_channels_table_with_action_buttons():
     """
     # Start the dashboard server in a subprocess
     proc = subprocess.Popen(
-        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080)"],
+        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080, False)"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
@@ -284,7 +284,7 @@ async def test_add_channel_card_displays_and_responds():
     """
     # Start the dashboard server in a subprocess
     proc = subprocess.Popen(
-        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080)"],
+        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080, False)"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )

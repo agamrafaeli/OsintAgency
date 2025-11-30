@@ -46,19 +46,20 @@ def create_dashboard_app():
     return ui
 
 
-def run_dashboard(host: str = "127.0.0.1", port: int = 8080):
+def run_dashboard(host: str = "127.0.0.1", port: int = 8080, show: bool = True):
     """
     Run the dashboard server.
 
     Args:
         host: Host address to bind to (default: 127.0.0.1)
         port: Port to listen on (default: 8080)
+        show: Whether to automatically open a browser window (default: True)
     """
     create_dashboard_app()
     ui.run(
         host=host,
         port=port,
         title="OSINT Agency Dashboard",
-        show=True,
+        show=show,
         reload=False,
     )
