@@ -23,10 +23,6 @@ When planning / executing a step from this plan:
 
 Here's a step plan in your AGENTS style for building a **mock NiceGUI dashboard UI** (no real data, just structure and placeholders) that includes all the components we discussed. All steps below refer to the dashboard UI implementation.
 
-* **Dashboard UI: Add-Channel Card**
-  In the dashboard, next to or below the forwarded table, add a card allowing the user to paste a Telegram link, show a parsed-channel placeholder, and optionally enter a display name. Add an "Add subscription" button and show a mock message if the "channel" already exists or is newly "added".
-  End-to-end test: Pasting any string into the input and clicking "Add subscription" shows a deterministic mock response (e.g., "Pretending to add @example_channel") without crashing the app.
-
 * **Dashboard UI: Mock Interactions**
   In the dashboard, wire all buttons and toggles across all panels to simple callbacks that log actions and show small notifications, without touching any database or external services. Ensure error handling is graceful so even invalid input just produces friendly mock messages.
   End-to-end test: A manual click-through of every button, toggle, and input across the dashboard completes without any exceptions and surfaces user-facing notifications for each action.
