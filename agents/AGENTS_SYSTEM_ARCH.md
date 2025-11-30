@@ -42,15 +42,21 @@ This document now focuses on the system overview and component responsibilities.
 ## Web Dashboard
 The NiceGUI dashboard (`osintagency/dashboard/`) provides an interactive web interface for visualizing and managing collected data. The dashboard is served via the `osintagency dashboard` CLI command.
 
+Architecture:
+- Modular panel-based design with components in `dashboard/panels/`
+- Mock data centralized in `dashboard/mock_data.py`
+- Main routes defined in `dashboard/app.py` (~60 lines)
+- Each panel is self-contained (<100 lines) following Single Responsibility Principle
+
 Current implementation:
 - Three-panel vertical layout with visually separated sections
-- Panel 1: "Top detected verses" - displays most frequently mentioned Quran verses with time window filter and search
-- Panel 2: "Subscriptions & scraping" - manages channel subscriptions with:
+- Panel 1: "Top detected verses" (`panels/verses_panel.py`) - displays most frequently mentioned Quran verses with time window filter and search
+- Panel 2: "Subscriptions & scraping" (`panels/subscriptions_panel.py`) - manages channel subscriptions with:
   - Global action buttons for bulk re-scraping and full reset
   - Table displaying channel ID, name, active status, messages stored, verses detected, dates, and last scrape timestamp
   - Per-row action buttons for re-scraping, editing, and toggling active status
   - All interactions show mock notifications (no real data operations yet)
-- Panel 3: "Forwarded from & discovery" - shows forwarded channels for discovery (placeholder)
+- Panel 3: "Forwarded from & discovery" (`panels/forwarded_panel.py`) - shows forwarded channels for discovery (placeholder)
 - Runs on localhost:8080 by default
 - Built with NiceGUI framework for reactive UI components
 

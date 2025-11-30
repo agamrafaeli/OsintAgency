@@ -23,10 +23,6 @@ When planning / executing a step from this plan:
 
 Here's a step plan in your AGENTS style for building a **mock NiceGUI dashboard UI** (no real data, just structure and placeholders) that includes all the components we discussed. All steps below refer to the dashboard UI implementation.
 
-* **Dashboard UI: Subscriptions Panel**
-  In the dashboard's "Subscriptions & scraping" panel, add a horizontal bar with two buttons: "Re-scrape all active channels" and "Full reset & re-scrape" (mock actions only). Under that, add a table with placeholder rows and columns for channel ID, name, active, messages stored, verses detected, first message date, last message date, and last scrape at, plus per-row action buttons.
-  End-to-end test: Clicking any global or per-row button shows a mock notification (e.g., toast/dialog) but does not perform real work.
-
 * **Dashboard UI: Analytics Summary**
   In the dashboard, above or below the subscriptions table, add a small summary bar with labels and dummy values for total active subscriptions, total messages, total detected verses, oldest message date, and newest message date. Use simple labels and numbers to simulate aggregated analytics.
   End-to-end test: The summary bar appears consistently and shows placeholder numbers even when tables are empty or reduced to a single row.
