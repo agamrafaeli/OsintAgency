@@ -51,7 +51,7 @@ def test_detect_verses_enriches_multiple_quotes(tmp_path):
 
     database = initialize_database(db_path)
     try:
-        from osintagency.storage.backends.peewee_backend import PeeweeStorage
+        from osintagency.storage.backends.peewee import PeeweeStorage
         backend = PeeweeStorage(db_path)
         backend._ensure_schema()
         with database.atomic():

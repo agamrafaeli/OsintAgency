@@ -47,10 +47,11 @@ See [arch/AGENTS_ARCH_ENRICHMENT.md](arch/AGENTS_ARCH_ENRICHMENT.md) for detaile
 ## Storage Interactions
 - `osintagency/storage` exposes a facade that delegates to a configured backend (defaulting to `PeeweeStorage` backed by SQLite).
 - The storage interface (`StorageBackend`) defines `persist_messages`, `fetch_messages`, and `persist_detected_verses`.
-- `PeeweeStorage` (in `osintagency/storage/backends/peewee_backend.py`) implements this interface using Peewee and SQLite.
+- `PeeweeStorage` (in `osintagency/storage/backends/peewee/`) implements this interface using Peewee and SQLite.
+- Each backend lives in its own folder under `backends/` (e.g., `backends/peewee/`) to support multiple backend implementations.
 - Data normalization logic lives in `osintagency/storage/normalization.py`, keeping backend implementations focused on database operations.
 - The storage layer normalizes detections, wipes stale rows for each processed message id, and bulk inserts replacements within a single transaction.
-- New storage backends can be added by implementing the `StorageBackend` interface without modifying existing code.
+- New storage backends can be added by creating a new folder under `backends/` and implementing the `StorageBackend` interface without modifying existing code.
 
 ## Module Boundaries & Code Standards
 

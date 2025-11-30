@@ -21,8 +21,7 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-- Refactor collector.py as its too large.
-- Refactor peewee_backend.py as its too large.
+<PLACEHOLDER>
 
 
 ## Documentation Update Process

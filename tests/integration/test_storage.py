@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from osintagency.storage.backends.peewee_backend import PeeweeStorage
+from osintagency.storage.backends.peewee import PeeweeStorage
 
 
 @pytest.fixture(params=[PeeweeStorage])

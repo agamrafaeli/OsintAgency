@@ -171,7 +171,7 @@ def test_collect_messages_runs_quran_enrichment(tmp_path):
 
     database = initialize_database(db_path)
     try:
-        from osintagency.storage.backends.peewee_backend import PeeweeStorage
+        from osintagency.storage.backends.peewee import PeeweeStorage
         backend = PeeweeStorage(db_path)
         backend._ensure_schema()
         verse_rows = list(DetectedVerse.select().dicts())
@@ -217,7 +217,7 @@ def test_collect_messages_runs_forward_enrichment(tmp_path):
 
     database = initialize_database(db_path)
     try:
-        from osintagency.storage.backends.peewee_backend import PeeweeStorage
+        from osintagency.storage.backends.peewee import PeeweeStorage
         backend = PeeweeStorage(db_path)
         backend._ensure_schema()
         forward_rows = list(ForwardedFrom.select().dicts())

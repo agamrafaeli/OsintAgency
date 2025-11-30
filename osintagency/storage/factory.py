@@ -2,7 +2,7 @@ import os
 from typing import Optional
 
 from osintagency.storage.interface import StorageBackend
-from osintagency.storage.backends.peewee_backend import PeeweeStorage
+from osintagency.storage.backends.peewee import PeeweeStorage
 
 def get_storage_backend(db_path: Optional[str] = None) -> StorageBackend:
     """
