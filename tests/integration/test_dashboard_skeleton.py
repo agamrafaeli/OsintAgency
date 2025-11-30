@@ -149,3 +149,61 @@ async def test_verses_panel_with_controls_and_table():
         # Clean up: terminate the server process
         proc.terminate()
         proc.wait(timeout=5)
+
+
+@pytest.mark.asyncio
+async def test_analytics_summary_bar_displays():
+    """
+    End-to-end test: Analytics summary bar appears consistently with placeholder numbers.
+
+    From AGENTS_PLAN.md step "Dashboard UI: Analytics Summary":
+    "The summary bar appears consistently and shows placeholder numbers even when
+    tables are empty or reduced to a single row."
+
+    This test verifies that:
+    - The summary bar is present on the dashboard
+    - Shows placeholder values for total active subscriptions
+    - Shows placeholder values for total messages
+    - Shows placeholder values for total detected verses
+    - Shows placeholder values for oldest message date
+    - Shows placeholder values for newest message date
+    - All metrics display without errors
+    """
+    # Start the dashboard server in a subprocess
+    proc = subprocess.Popen(
+        ["python", "-c", "from osintagency.dashboard.app import run_dashboard; run_dashboard('127.0.0.1', 8080)"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    try:
+        # Give the server time to start
+        time.sleep(3)
+
+        # Test that the analytics summary bar is present
+        async with httpx.AsyncClient() as client:
+            response = await client.get("http://localhost:8080/dashboard", timeout=5.0)
+
+            # Verify the route exists (200 OK)
+            assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+
+            # Verify the analytics summary section is present
+            assert ("Analytics Summary" in response.text or "Analytics" in response.text), \
+                "Page should contain analytics summary section"
+
+            # Verify all five metrics are present (labels)
+            assert ("Active subscriptions" in response.text or "active subscriptions" in response.text), \
+                "Analytics should show active subscriptions metric"
+            assert ("Total messages" in response.text or "total messages" in response.text), \
+                "Analytics should show total messages metric"
+            assert ("Detected verses" in response.text or "detected verses" in response.text), \
+                "Analytics should show detected verses metric"
+            assert ("Oldest message" in response.text or "oldest message" in response.text), \
+                "Analytics should show oldest message date metric"
+            assert ("Newest message" in response.text or "newest message" in response.text), \
+                "Analytics should show newest message date metric"
+
+    finally:
+        # Clean up: terminate the server process
+        proc.terminate()
+        proc.wait(timeout=5)

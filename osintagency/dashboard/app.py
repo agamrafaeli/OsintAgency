@@ -5,6 +5,7 @@ This module provides a minimal NiceGUI web application with dashboard
 route displaying analysis interface.
 """
 from nicegui import ui
+from .panels.analytics_summary_panel import render_analytics_summary_panel
 from .panels.verses_panel import render_verses_panel
 from .panels.subscriptions_panel import render_subscriptions_panel
 from .panels.forwarded_panel import render_forwarded_panel
@@ -20,6 +21,9 @@ def index_page():
 def dashboard_page():
     """Dashboard route handler."""
     ui.label("Dashboard loaded").classes("text-2xl font-bold")
+
+    # Analytics Summary Bar
+    render_analytics_summary_panel()
 
     # Panel 1: Top detected verses
     render_verses_panel()

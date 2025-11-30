@@ -49,6 +49,12 @@ Architecture:
 - Each panel is self-contained (<100 lines) following Single Responsibility Principle
 
 Current implementation:
+- Analytics summary bar (`panels/analytics_summary_panel.py`) - displays key metrics in a grid layout:
+  - Total active subscriptions
+  - Total messages collected
+  - Total detected verses
+  - Oldest and newest message dates
+  - Uses placeholder/mock data from `mock_data.py`
 - Three-panel vertical layout with visually separated sections
 - Panel 1: "Top detected verses" (`panels/verses_panel.py`) - displays most frequently mentioned Quran verses with time window filter and search
 - Panel 2: "Subscriptions & scraping" (`panels/subscriptions_panel.py`) - manages channel subscriptions with:

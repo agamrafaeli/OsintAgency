@@ -95,3 +95,14 @@ def get_mock_subscriptions():
             "last_scrape_at": "2025-11-30 16:20:44"
         },
     ]
+
+
+def get_mock_analytics_summary():
+    """Get mock data for the analytics summary bar."""
+    return {
+        "active_subscriptions": 3,
+        "total_messages": 8418,
+        "detected_verses": 652,
+        "oldest_message_date": "2025-08-20",
+        "newest_message_date": "2025-11-30"
+    }
