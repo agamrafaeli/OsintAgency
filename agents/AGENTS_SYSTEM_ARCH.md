@@ -44,9 +44,13 @@ The NiceGUI dashboard (`osintagency/dashboard/`) provides an interactive web int
 
 Current implementation:
 - Three-panel vertical layout with visually separated sections
-- Panel 1: "Top detected verses" - displays most frequently mentioned Quran verses
-- Panel 2: "Subscriptions & scraping" - manages channel subscriptions and scraping operations
-- Panel 3: "Forwarded from & discovery" - shows forwarded channels for discovery
+- Panel 1: "Top detected verses" - displays most frequently mentioned Quran verses with time window filter and search
+- Panel 2: "Subscriptions & scraping" - manages channel subscriptions with:
+  - Global action buttons for bulk re-scraping and full reset
+  - Table displaying channel ID, name, active status, messages stored, verses detected, dates, and last scrape timestamp
+  - Per-row action buttons for re-scraping, editing, and toggling active status
+  - All interactions show mock notifications (no real data operations yet)
+- Panel 3: "Forwarded from & discovery" - shows forwarded channels for discovery (placeholder)
 - Runs on localhost:8080 by default
 - Built with NiceGUI framework for reactive UI components
 
