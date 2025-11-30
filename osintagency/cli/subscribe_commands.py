@@ -9,7 +9,7 @@ import sys
 import click
 
 from ..actions.fetch_subscriptions_action import fetch_subscriptions_action
-from ..collector import TelethonTelegramClient
+from ..clients import TelethonTelegramClient
 from ..config import load_telegram_config
 from ..subscription import (
     add_subscription,

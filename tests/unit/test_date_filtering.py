@@ -9,7 +9,7 @@ from click.testing import CliRunner
 
 from osintagency import storage
 from osintagency.cli.cli import fetch_channel_command
-from osintagency.collector import DeterministicTelegramClient
+from osintagency.clients import DeterministicTelegramClient
 
 
 @pytest.fixture(autouse=True)

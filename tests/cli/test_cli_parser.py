@@ -7,7 +7,7 @@ from osintagency.cli.setup_commands import (
     cleanup_command,
     fetch_channel_command as setup_fetch_channel_command,
 )
-from osintagency.collector import (
+from osintagency.clients import (
     DeterministicTelegramClient,
     TelethonTelegramClient,
 )

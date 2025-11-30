@@ -6,10 +6,8 @@ from click.testing import CliRunner
 import pytest
 
 from osintagency import storage
-from osintagency.collector import (
-    DeterministicTelegramClient,
-    collect_messages,
-)
+from osintagency.clients import DeterministicTelegramClient
+from osintagency.collector import collect_messages
 from osintagency.cli import cli
 
 

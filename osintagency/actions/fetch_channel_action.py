@@ -6,8 +6,9 @@ from datetime import datetime
 import json
 import os
 
+from ..clients import TelegramMessageClient
+from ..collector import collect_messages
 from ..config import ConfigurationError
-from ..collector import TelegramMessageClient, collect_messages
 from ..logging_config import configure_logging, get_console_logger, get_logger
 
 logger = get_logger(__name__)

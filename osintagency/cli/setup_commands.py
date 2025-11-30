@@ -10,7 +10,7 @@ from .commands import cleanup_database as cleanup_database_module
 from .commands import fetch_channel as fetch_channel_module
 from .decorators import osintagency_cli_command
 from ..actions.fetch_subscriptions_action import fetch_subscriptions_action
-from ..collector import TelethonTelegramClient
+from ..clients import TelethonTelegramClient
 from ..config import load_telegram_config
 
 

@@ -22,9 +22,9 @@ def test_stubbed_collection_respects_db_env(monkeypatch: pytest.MonkeyPatch, tmp
     db_path = tmp_path / "custom_dir" / "messages.sqlite3"
     monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(db_path))
 
+    from osintagency.clients import DeterministicTelegramClient
     from osintagency.collector import (
         CollectionOutcome,
-        DeterministicTelegramClient,
         collect_messages,
         purge_database_file,
     )
@@ -50,7 +50,7 @@ def test_stubbed_collection_respects_db_env(monkeypatch: pytest.MonkeyPatch, tmp
 
 def test_deterministic_client_with_offset_date():
     """Test that DeterministicTelegramClient filters messages by offset_date."""
-    from osintagency.collector import DeterministicTelegramClient
+    from osintagency.clients import DeterministicTelegramClient
 
     client = DeterministicTelegramClient()
 
@@ -100,10 +100,8 @@ def test_collect_messages_with_offset_date(monkeypatch: pytest.MonkeyPatch, tmp_
     db_path = tmp_path / "test_offset.sqlite3"
     monkeypatch.setenv("OSINTAGENCY_DB_PATH", str(db_path))
 
-    from osintagency.collector import (
-        DeterministicTelegramClient,
-        collect_messages,
-    )
+    from osintagency.clients import DeterministicTelegramClient
+    from osintagency.collector import collect_messages
 
     # Test without offset_date - should get all 10 messages
     outcome = collect_messages(

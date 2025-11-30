@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from osintagency.actions.fetch_channel_action import fetch_channel_action
-from osintagency.collector import (
+from osintagency.clients import (
     DeterministicTelegramClient,
     TelethonTelegramClient,
 )

@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 
 from ...actions.fetch_channel_action import fetch_channel_action
-from ...collector import (
+from ...clients import (
     DeterministicTelegramClient,
     TelegramMessageClient,
     TelethonTelegramClient,

@@ -6,7 +6,8 @@ from datetime import datetime
 import os
 from dataclasses import dataclass
 
-from ..collector import TelegramMessageClient, collect_messages
+from ..clients import TelegramMessageClient
+from ..collector import collect_messages
 from ..config import ConfigurationError
 from ..logging_config import configure_logging, get_console_logger, get_logger
 from ..subscription import get_subscriptions

@@ -9,7 +9,7 @@ import pytest
 
 from osintagency import storage
 from osintagency.cli import cli
-from osintagency.collector import DeterministicTelegramClient
+from osintagency.clients import DeterministicTelegramClient
 
 
 @pytest.fixture(autouse=True)
