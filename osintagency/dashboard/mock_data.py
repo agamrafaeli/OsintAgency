@@ -137,17 +137,6 @@ def get_mock_subscriptions():
     ]
 
 
-def get_mock_analytics_summary():
-    """Get mock data for the analytics summary bar."""
-    return {
-        "active_subscriptions": 3,
-        "total_messages": 8418,
-        "detected_verses": 652,
-        "oldest_message_date": "2025-08-20",
-        "newest_message_date": "2025-11-30"
-    }
-
-
 def get_mock_forwarded_channels():
     """Get mock data for the forwarded channels table."""
     return [
