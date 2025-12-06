@@ -20,20 +20,17 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-Here's a step plan in your AGENTS style for building a **mock NiceGUI dashboard UI** (no real data, just structure and placeholders) that includes all the components we discussed. All steps below refer to the dashboard UI implementation.
+- Backend Analytics Service
+  Add `fetch_analytics_summary()` method to `storage/backends/peewee/fetch.py` that aggregates data from `StoredMessage`, `Subscription`, and `DetectedVerse` tables. Return counts for active subscriptions, total messages, detected verses, and date ranges matching the structure in `mock_data.get_mock_analytics_summary()`.
+  End-to-end test: New fetch method returns accurate analytics data matching current database state when called through storage interface.
 
-* **Dashboard UI: Subscriptions Panel Interactions**
-  In the Subscriptions & Scraping panel, wire the "Re-scrape all" and "Full reset" buttons plus all per-row actions (Re-scrape, Edit, Activate/Deactivate) to callbacks that log actions and show notifications. Ensure the table displays mock subscription data and all buttons provide user feedback.
-  End-to-end test: Clicking any button in the Subscriptions panel (global or per-row) triggers appropriate notifications and updates UI state without exceptions.
+- Frontend Analytics Integration
+  Update `dashboard/panels/analytics_summary_panel.py` to call real storage backend via `fetch_analytics_summary()` instead of importing from `mock_data`. Replace `get_mock_analytics_summary()` call at line 13 with actual database query through storage interface.
+  End-to-end test: Dashboard displays real-time analytics that update when database content changes (verify by adding a message and refreshing dashboard).
 
-* **Dashboard UI: Forwarded Channels Interactions**
-  In the Forwarded Channels table within the Forwarded from & Discovery panel, wire the per-row "Add as subscription" buttons to callbacks that log actions, show notifications, and toggle button state to "Subscribed" label. Display mock forwarded channel data in the table.
-  End-to-end test: Clicking "Add as subscription" on any forwarded channel row shows a notification and changes the button to a "Subscribed" label without exceptions.
-
-* **Dashboard UI: Add Channel Interactions**
-  In the Add Channel card, wire the Telegram link input to parse and display the channel name reactively, and wire the "Add subscription" button to validate input, log the action, show notifications for success/error cases (duplicate, invalid format, empty), and reset the form on success.
-  End-to-end test: Entering various Telegram links (valid, invalid, duplicate, empty) and clicking "Add subscription" produces appropriate validation messages and notifications without exceptions.
-
+- Remove Analytics Mock
+  Delete `get_mock_analytics_summary()` function from `dashboard/mock_data.py` (lines 140-148). Verify no remaining imports of this function exist in the codebase.
+  End-to-end test: Dashboard still works correctly and `grep -r "get_mock_analytics_summary" osintagency/` returns no results.
 
 
 ## Documentation Update Process
