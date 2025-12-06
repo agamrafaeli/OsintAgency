@@ -20,7 +20,8 @@ Options:
 - `--host`: Bind address (default: 127.0.0.1)
 - `--port`: Port number (default: 8080)
 
-The dashboard currently displays three main sections:
+The dashboard currently displays:
+- **Analytics Summary Bar**: Real-time metrics displaying active subscriptions, total messages, detected verses, and message date ranges pulled directly from the storage backend
 - **Top detected verses**: Displays the most frequently mentioned Quran verses across tracked channels with filtering and time window controls
 - **Subscriptions & scraping**: Manages channel subscriptions with a table view showing channel details, statistics, and action buttons for re-scraping and editing (mock functionality)
 - **Forwarded from & discovery**: Shows a table of channels referenced in forwarded messages sorted by frequency, with "Add as subscription" buttons to quickly subscribe to discovered channels. Also includes an "Add channel" card that lets users manually enter a Telegram link, shows the parsed channel identifier, and optionally set a display name before adding a subscription (mock functionality)

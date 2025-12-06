@@ -44,3 +44,11 @@ def persist_forwarded_channels(
     """Upsert forwarded channel rows independently from message storage."""
     backend = get_storage_backend(db_path=db_path)
     return backend.persist_forwarded_channels(forwarded_channels, message_ids=message_ids)
+
+def fetch_analytics_summary(
+    *,
+    db_path: str | os.PathLike[str] | None = None,
+) -> dict[str, object]:
+    """Return aggregated analytics summary from database tables."""
+    backend = get_storage_backend(db_path=db_path)
+    return backend.fetch_analytics_summary()

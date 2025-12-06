@@ -54,7 +54,8 @@ Current implementation:
   - Total messages collected
   - Total detected verses
   - Oldest and newest message dates
-  - Uses placeholder/mock data from `mock_data.py`
+  - **Uses real data from storage backend via `fetch_analytics_summary()`**
+  - Displays "No data" for empty date fields when database is empty
   - Interactive tooltips on each metric card explaining their meaning
   - Clickable cards that show notifications (future: filter/navigate based on metric)
 - Three-panel vertical layout with visually separated sections

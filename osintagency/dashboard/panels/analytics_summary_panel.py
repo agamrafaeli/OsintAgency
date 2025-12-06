@@ -1,16 +1,16 @@
 """
 Analytics summary panel for the dashboard.
 
-This panel displays aggregated analytics with placeholder values for total
+This panel displays aggregated analytics from the storage backend showing
 active subscriptions, messages, detected verses, and date ranges.
 """
 from nicegui import ui
-from ..mock_data import get_mock_analytics_summary
+from osintagency.storage import fetch_analytics_summary
 
 
 def render_analytics_summary_panel():
     """Render the analytics summary bar with key metrics."""
-    analytics = get_mock_analytics_summary()
+    analytics = fetch_analytics_summary()
 
     def on_metric_click(metric_name: str):
         """
@@ -62,7 +62,8 @@ def render_analytics_summary_panel():
                 ui.label("Oldest message").classes("text-sm text-gray-600").tooltip(
                     "Date of the earliest message in the database"
                 )
-                ui.label(analytics["oldest_message_date"]).classes(
+                oldest_date = analytics["oldest_message_date"] or "No data"
+                ui.label(oldest_date).classes(
                     "text-lg font-semibold"
                 )
 
@@ -72,6 +73,7 @@ def render_analytics_summary_panel():
                 ui.label("Newest message").classes("text-sm text-gray-600").tooltip(
                     "Date of the most recent message in the database"
                 )
-                ui.label(analytics["newest_message_date"]).classes(
+                newest_date = analytics["newest_message_date"] or "No data"
+                ui.label(newest_date).classes(
                     "text-lg font-semibold"
                 )
