@@ -5,13 +5,13 @@ Quick reference for how automation agents should interact with the **OsintAgency
 ## Purpose
 
 - Describe the guardrails for AI and human collaborators touching the repo.
-- Point to `agents/AGENTS_SYSTEM_ARCH.md` for architecture context once it is filled in.
+- Point to `agents/arch/AGENTS_SYSTEM_ARCH.md` for architecture context once it is filled in.
 
 ## Core Files
 
-- `agents/AGENTS_PLAN.md`: Source of truth for the next tasks. Always read it before modifying code.
-- `agents/AGENTS_SYSTEM_ARCH.md`: Architecture sketch; update it when components or data flows change.
-- `agents/AGENTS_TESTING.md`: Instructions for how to interact with tests in this repo
+- `agents/plans/AGENTS_PLAN.md`: Source of truth for the next tasks. Always read it before modifying code.
+- `agents/arch/AGENTS_SYSTEM_ARCH.md`: Architecture sketch; update it when components or data flows change.
+- `agents/guides/AGENTS_TESTING.md`: Instructions for how to interact with tests in this repo
 - `README.md`: External-facing description of the project. Refresh it after major user-facing updates.
 
 ## Workflow Rules
@@ -30,12 +30,12 @@ Quick reference for how automation agents should interact with the **OsintAgency
 
 ## When Work Completes
 
-1. Remove finished steps from `agents/AGENTS_PLAN.md` and renumber the remainder.
+1. Remove finished steps from `agents/plans/AGENTS_PLAN.md` and renumber the remainder.
 2. Update documentation listed in the plan’s “Documentation Update Process” section (create missing files if needed).
 3. Announce remaining TODOs or follow-up items in your final response so humans can pick up quickly, and record any scope clarifications so the next contributor inherits the context.
 
 ## Troubleshooting
 
 - Missing tests? Write new descriptive test files; do not include step numbers in filenames.
-- Unsure about architecture? Add a placeholder note in `agents/AGENTS_SYSTEM_ARCH.md`, ensure a scaffold exists when Step 1 is active, and flag it in your summary.
+- Unsure about architecture? Add a placeholder note in `agents/arch/AGENTS_SYSTEM_ARCH.md`, ensure a scaffold exists when Step 1 is active, and flag it in your summary.
 - Sandbox errors? Explain the limitation in your summary and suggest manual follow-up steps.
