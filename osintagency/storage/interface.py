@@ -46,3 +46,8 @@ class StorageBackend(ABC):
     def fetch_forwarded_channels(self) -> list[dict[str, object]]:
         """Return aggregated channel references sorted by frequency (reference count descending)."""
         pass
+
+    @abstractmethod
+    def fetch_analytics_summary(self) -> dict[str, object]:
+        """Return aggregated analytics summary from database tables."""
+        pass

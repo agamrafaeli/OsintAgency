@@ -297,3 +297,135 @@ def test_fetch_forwarded_channels_filters_null_channels(storage_backend):
     assert len(result) == 1
     assert result[0]["source_channel_id"] == 789
     assert result[0]["reference_count"] == 1
+
+
+def test_fetch_analytics_summary_returns_aggregated_stats(storage_backend):
+    """Test that fetch_analytics_summary returns accurate analytics data from database."""
+    from osintagency.schema import Subscription, database_proxy
+    from osintagency.storage.backends.peewee import operations
+
+    # Get database connection for direct Subscription manipulation
+    database = operations.get_database(storage_backend.db_path)
+    database_proxy.initialize(database)
+
+    try:
+        # Create subscriptions (3 active, 1 inactive)
+        with database.atomic():
+            database.create_tables([Subscription], safe=True)
+            Subscription.insert_many(
+                [
+                    {
+                        "channel_id": "@channel1",
+                        "name": "Channel 1",
+                        "added_at": "2024-01-01T00:00:00+00:00",
+                        "active": True,
+                    },
+                    {
+                        "channel_id": "@channel2",
+                        "name": "Channel 2",
+                        "added_at": "2024-01-02T00:00:00+00:00",
+                        "active": True,
+                    },
+                    {
+                        "channel_id": "@channel3",
+                        "name": "Channel 3",
+                        "added_at": "2024-01-03T00:00:00+00:00",
+                        "active": False,
+                    },
+                    {
+                        "channel_id": "@channel4",
+                        "name": "Channel 4",
+                        "added_at": "2024-01-04T00:00:00+00:00",
+                        "active": True,
+                    },
+                ]
+            ).execute()
+
+        # Create messages with different dates
+        messages = [
+            {
+                "id": 1,
+                "timestamp": "2024-01-15T10:00:00",
+                "text": "Oldest message",
+            },
+            {
+                "id": 2,
+                "timestamp": "2024-02-20T15:30:00",
+                "text": "Middle message",
+            },
+            {
+                "id": 3,
+                "timestamp": "2024-03-25T20:45:00",
+                "text": "Newest message",
+            },
+        ]
+        storage_backend.persist_messages("@channel1", messages)
+
+        # Add more messages to different channels
+        storage_backend.persist_messages(
+            "@channel2",
+            [
+                {"id": 10, "timestamp": "2024-02-10T12:00:00", "text": "Message 10"},
+                {"id": 11, "timestamp": "2024-02-11T13:00:00", "text": "Message 11"},
+            ],
+        )
+
+        # Create detected verses
+        storage_backend.persist_detected_verses(
+            [
+                {
+                    "message_id": 1,
+                    "sura": 1,
+                    "ayah": 1,
+                    "confidence": 0.95,
+                    "is_partial": False,
+                },
+                {
+                    "message_id": 2,
+                    "sura": 2,
+                    "ayah": 255,
+                    "confidence": 0.88,
+                    "is_partial": True,
+                },
+                {
+                    "message_id": 3,
+                    "sura": 36,
+                    "ayah": 82,
+                    "confidence": 0.92,
+                    "is_partial": False,
+                },
+                {
+                    "message_id": 10,
+                    "sura": 18,
+                    "ayah": 10,
+                    "confidence": 0.90,
+                    "is_partial": False,
+                },
+            ],
+            message_ids=[1, 2, 3, 10],
+        )
+
+        # Fetch analytics summary
+        result = storage_backend.fetch_analytics_summary()
+
+        # Verify results
+        assert result["active_subscriptions"] == 3  # 3 active subscriptions
+        assert result["total_messages"] == 5  # 5 total messages
+        assert result["detected_verses"] == 4  # 4 detected verses
+        assert result["oldest_message_date"] == "2024-01-15T10:00:00"
+        assert result["newest_message_date"] == "2024-03-25T20:45:00"
+
+    finally:
+        database.close()
+
+
+def test_fetch_analytics_summary_handles_empty_database(storage_backend):
+    """Test that fetch_analytics_summary handles empty database gracefully."""
+    result = storage_backend.fetch_analytics_summary()
+
+    # Should return zeros and None for dates when database is empty
+    assert result["active_subscriptions"] == 0
+    assert result["total_messages"] == 0
+    assert result["detected_verses"] == 0
+    assert result["oldest_message_date"] is None
+    assert result["newest_message_date"] is None

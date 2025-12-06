@@ -9,6 +9,7 @@ from osintagency.schema import (
     DetectedVerse,
     ForwardedFrom,
     StoredMessage,
+    Subscription,
     database_proxy,
 )
 from osintagency.storage.utils import initialize_database, resolve_db_path
@@ -20,7 +21,7 @@ def ensure_schema() -> None:
     if database is None:
         raise RuntimeError("Database has not been initialized.")
     database.create_tables(
-        [StoredMessage, DetectedVerse, ForwardedFrom], safe=True
+        [StoredMessage, DetectedVerse, ForwardedFrom, Subscription], safe=True
     )
 
 

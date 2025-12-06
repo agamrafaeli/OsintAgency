@@ -6,7 +6,7 @@ import json
 
 from peewee import fn
 
-from osintagency.schema import ForwardedFrom, StoredMessage
+from osintagency.schema import DetectedVerse, ForwardedFrom, StoredMessage, Subscription
 
 from .operations import ensure_schema
 
@@ -55,3 +55,41 @@ def fetch_forwarded_channels(database) -> list[dict[str, object]]:
             for record in query
         ]
     return results
+
+
+def fetch_analytics_summary(database) -> dict[str, object]:
+    """Return aggregated analytics summary from database tables."""
+    with database.connection_context():
+        ensure_schema()
+
+        # Count active subscriptions
+        active_subscriptions_count = (
+            Subscription.select()
+            .where(Subscription.active == True)  # noqa: E712
+            .count()
+        )
+
+        # Count total messages
+        total_messages_count = StoredMessage.select().count()
+
+        # Count detected verses
+        detected_verses_count = DetectedVerse.select().count()
+
+        # Get date range from messages
+        date_query = StoredMessage.select(
+            fn.MIN(StoredMessage.posted_at).alias("oldest"),
+            fn.MAX(StoredMessage.posted_at).alias("newest"),
+        ).first()
+
+        oldest_date = date_query.oldest if date_query else None
+        newest_date = date_query.newest if date_query else None
+
+        result: dict[str, object] = {
+            "active_subscriptions": active_subscriptions_count,
+            "total_messages": total_messages_count,
+            "detected_verses": detected_verses_count,
+            "oldest_message_date": oldest_date,
+            "newest_message_date": newest_date,
+        }
+
+    return result

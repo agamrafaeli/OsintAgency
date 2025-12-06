@@ -83,6 +83,15 @@ class PeeweeStorage(StorageBackend):
         finally:
             database.close()
 
+    def fetch_analytics_summary(self) -> dict[str, object]:
+        """Return aggregated analytics summary from database tables."""
+        database = operations.get_database(self.db_path)
+        try:
+            results = fetch.fetch_analytics_summary(database)
+            return results
+        finally:
+            database.close()
+
     def _ensure_schema(self) -> None:
         """Create tables if they don't exist (for backward compatibility)."""
         operations.ensure_schema()
