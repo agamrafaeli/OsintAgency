@@ -1,6 +1,6 @@
 # Analysis Framework Flowchart
 
-This flowchart visualizes the five-layer architecture for Telegram Quranic discourse analysis described in AGENTS_ROADMAP.md.
+This flowchart visualizes the five-layer architecture for Telegram Quranic discourse analysis described in `agents/plans/AGENTS_ROADMAP.md`.
 
 ```mermaid
 flowchart TB

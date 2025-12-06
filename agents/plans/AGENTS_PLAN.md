@@ -12,8 +12,8 @@ If not, then offer your best understanding of what the step should be. And itera
 
 # Execution guidelines for agents reading from this file
 When planning / executing a step from this plan:
-- If a test is not well defined (step name in three words + descritpion in two sentences + test if needed) then first re-word it in `AGENTS_PLAN.md` and only then proceed.
-- Generally when interacting with tests follow the guidance of `AGENTS_TESTING.md`
+- If a test is not well defined (step name in three words + descritpion in two sentences + test if needed) then first re-word it in `agents/plans/AGENTS_PLAN.md` and only then proceed.
+- Generally when interacting with tests follow the guidance of `agents/guides/AGENTS_TESTING.md`
 - When developing use TDD, meaning write a test, make sure it fails, then add code and make sure the tests pass.
 - Test file names must NOT contain "step" references (e.g., avoid `test_step_01_foo.py`). Tests should be named descriptively based on what they test, agnostic of when they were written or which plan step they fulfill.
 - Unless specifically asked, only do one step at a time. 
@@ -34,13 +34,13 @@ When a step is completed:
    - Add any specific workflows that are main enough
 
 - **Update Architecture Docs**:
-   - `AGENTS_SYSTEM_ARCH.md` should remain concise (under 100 lines) as a high-level overview
+   - `agents/arch/AGENTS_SYSTEM_ARCH.md` should remain concise (under 100 lines) as a high-level overview
    - For detailed documentation, create focused files in `agents/arch/AGENTS_ARCH_<TOPIC>.md` (also under 100 lines each)
-   - Update `AGENTS_SYSTEM_ARCH.md` with a brief summary and reference to the detailed doc
+   - Update `agents/arch/AGENTS_SYSTEM_ARCH.md` with a brief summary and reference to the detailed doc
    - Topics should be "philosophical" rather than overly practical (avoid extensive code examples)
    - Follow the pattern established by `agents/arch/AGENTS_ARCH_ENRICHMENT.md`
 
-- **Confirm with a human** before removing a completed step from this file (agents/AGENTS_PLAN.md); removal is a human-only decision. Once confirmed, **remove the completed step** and, if it was the last step to be removed, write a <PLACEHOLDER> for future writings to this file of new plans.
+- **Confirm with a human** before removing a completed step from this file (agents/plans/AGENTS_PLAN.md); removal is a human-only decision. Once confirmed, **remove the completed step** and, if it was the last step to be removed, write a <PLACEHOLDER> for future writings to this file of new plans.
 
 - **Reorder remaining steps** as needed to keep the plan coherent.
 
