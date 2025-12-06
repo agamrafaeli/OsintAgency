@@ -20,10 +20,6 @@ When planning / executing a step from this plan:
 
 ## Planned Steps
 
-- Remove Analytics Mock
-  Delete `get_mock_analytics_summary()` function from `dashboard/mock_data.py` (lines 140-148). Verify no remaining imports of this function exist in the codebase.
-  End-to-end test: Dashboard still works correctly and `grep -r "get_mock_analytics_summary" osintagency/` returns no results.
-
 - refactor backend.py to make it shorter as there is lots of logic flow duplication.
 - refactor fetch.py to make it extendible
 - refactor test_storage.py as its too large
